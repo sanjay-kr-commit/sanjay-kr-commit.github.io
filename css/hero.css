@@ -1,0 +1,278 @@
+/* ============ HERO ============ */
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.grid-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: perspective(420px) rotateX(62deg);
+  transform-origin: bottom;
+  opacity: .85;
+  -webkit-mask-image: linear-gradient(to top, black 30%, transparent 95%);
+  mask-image: linear-gradient(to top, black 30%, transparent 95%);
+}
+
+.horizon-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 38%;
+  height: 2px;
+  background: var(--cyan);
+  box-shadow: 0 0 40px 6px var(--cyan-glow);
+  opacity: .8;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  padding: 0 6vw;
+}
+
+.hero-id {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .35em;
+  color: var(--text-dim);
+  margin-bottom: 1.6rem;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 7vw, 5.2rem);
+  font-weight: 900;
+  line-height: 1.02;
+  color: var(--text-hi);
+  text-shadow: 0 0 18px var(--cyan-glow);
+}
+
+.hero .tagline {
+  margin-top: 1.4rem;
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  color: var(--text-mid);
+  max-width: 34ch;
+  margin-inline: auto;
+}
+
+.hero .cta-row {
+  margin-top: 2.6rem;
+  justify-content: center;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .3em;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+
+.scroll-cue .bar {
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(var(--cyan), transparent);
+  animation: pulse-bar 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-bar {
+
+  0%,
+  100% {
+    opacity: .2;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============ CRT-STYLE TITLE GLITCH ============ */
+#glitchTitle {
+  position: relative;
+}
+
+/* brief flicker as the title "powers on" when the page loads */
+#glitchTitle.power-on {
+  animation: power-on-flicker .8s steps(1, end) 1;
+}
+
+@keyframes power-on-flicker {
+  0% {
+    opacity: 0;
+  }
+
+  6% {
+    opacity: 1;
+  }
+
+  9% {
+    opacity: .15;
+  }
+
+  13% {
+    opacity: 1;
+  }
+
+  18% {
+    opacity: .3;
+  }
+
+  22% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* sliced RGB-split layers, only visible while .is-glitching is active */
+#glitchTitle::before,
+#glitchTitle::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--void);
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+#glitchTitle.is-glitching::before {
+  opacity: .85;
+  color: var(--cyan);
+  animation: glitch-slice-a .42s steps(2, end) infinite;
+}
+
+#glitchTitle.is-glitching::after {
+  opacity: .85;
+  color: #ff3b5c;
+  animation: glitch-slice-b .38s steps(2, end) infinite;
+}
+
+#glitchTitle.is-glitching {
+  animation: glitch-jitter .28s steps(2, end) infinite;
+}
+
+@keyframes glitch-slice-a {
+  0% {
+    clip-path: polygon(0 8%, 100% 8%, 100% 24%, 0 24%);
+    transform: translate(-6px, 0);
+  }
+
+  30% {
+    clip-path: polygon(0 44%, 100% 44%, 100% 58%, 0 58%);
+    transform: translate(5px, 0);
+  }
+
+  60% {
+    clip-path: polygon(0 70%, 100% 70%, 100% 82%, 0 82%);
+    transform: translate(-4px, 0);
+  }
+
+  100% {
+    clip-path: polygon(0 15%, 100% 15%, 100% 30%, 0 30%);
+    transform: translate(3px, 0);
+  }
+}
+
+@keyframes glitch-slice-b {
+  0% {
+    clip-path: polygon(0 60%, 100% 60%, 100% 78%, 0 78%);
+    transform: translate(6px, 0);
+  }
+
+  35% {
+    clip-path: polygon(0 18%, 100% 18%, 100% 34%, 0 34%);
+    transform: translate(-5px, 0);
+  }
+
+  65% {
+    clip-path: polygon(0 40%, 100% 40%, 100% 50%, 0 50%);
+    transform: translate(4px, 0);
+  }
+
+  100% {
+    clip-path: polygon(0 5%, 100% 5%, 100% 16%, 0 16%);
+    transform: translate(-3px, 0);
+  }
+}
+
+@keyframes glitch-jitter {
+  0% {
+    transform: translate(0, 0) skewX(0deg);
+  }
+
+  20% {
+    transform: translate(-2px, 1px) skewX(1deg);
+  }
+
+  40% {
+    transform: translate(2px, -1px) skewX(-1deg);
+  }
+
+  60% {
+    transform: translate(-1px, 0) skewX(0deg);
+  }
+
+  80% {
+    transform: translate(1px, 1px) skewX(1deg);
+  }
+
+  100% {
+    transform: translate(0, 0) skewX(0deg);
+  }
+}
+
+/* quick static-noise flash across the whole hero during a glitch burst */
+.hero.is-glitching::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .05) 0px, rgba(255, 255, 255, .05) 1px,
+      transparent 2px, transparent 4px);
+  opacity: .5;
+  animation: static-flicker .28s steps(2, end) infinite;
+}
+
+@keyframes static-flicker {
+  0% {
+    opacity: .15;
+  }
+
+  50% {
+    opacity: .5;
+  }
+
+  100% {
+    opacity: .2;
+  }
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sanjay-kr-commit://PORTFOLIO — IDENTITY DISC ACTIVE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/shell.css">
+</head>
+
+<body class="has-frame">
+
+  <canvas id="crtCanvas"></canvas>
+  <div class="crt-overlay"></div>
+  <div class="scan-sweep"></div>
+
+  <header>
+    <nav>
+      <a href="#home" data-page="home" class="logo">SANJAY<span>://</span>PORTFOLIO</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">MENU</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" data-page="home">Home</a></li>
+        <li><a href="#about" data-page="about">Identity</a></li>
+        <li><a href="#projects" data-page="projects">Programs</a></li>
+        <li><a href="#protocols" data-page="protocols">Protocols</a></li>
+        <li><a href="#contact" data-page="contact">Access</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="frame-wrap" id="frameWrap">
+    <iframe id="pageFrame" name="pageFrame" src="pages/home.html" title="Page content"></iframe>
+    <div class="glitch-overlay" aria-hidden="true"></div>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> sanjay-kr-commit://PORTFOLIO</span>
+    <span>END OF LINE</span>
+  </footer>
+
+  <script src="js/nav.js" defer></script>
+  <script src="js/shell.js" defer></script>
+  <script src="js/crt.js" defer></script>
+  <script src="js/crt-v5.js"></script>
+</body>
+
+</html>

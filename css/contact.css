@@ -1,0 +1,45 @@
+.access {
+  text-align: center;
+}
+
+.access p {
+  color: var(--text-mid);
+  max-width: 46ch;
+  margin: 1.1rem auto 2.2rem;
+}
+
+.access .cta-row {
+  justify-content: center;
+}
+
+.channel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.4rem;
+  max-width: 760px;
+  margin: 3rem auto 0;
+  text-align: left;
+}
+
+.channel-card {
+  border: 1px solid var(--grid-line);
+  background: var(--panel);
+  padding: 1.4rem;
+  transition: border-color .2s;
+}
+
+.channel-card:hover {
+  border-color: var(--cyan);
+}
+
+.channel-card .eyebrow {
+  margin-bottom: .5rem;
+  font-size: .68rem;
+}
+
+.channel-card a {
+  font-family: var(--font-mono);
+  font-size: .9rem;
+  color: var(--cyan);
+  word-break: break-word;
+}
