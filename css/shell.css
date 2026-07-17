@@ -107,3 +107,51 @@ body.crt-fault #pageFrame {
 body.crt-fault #crtCanvas {
   filter: hue-rotate(-150deg) saturate(2.2);
 }
+
+/* ==========================
+   Boot Screen
+========================== */
+
+#boot-screen{
+    position:fixed;
+    inset:0;
+
+    background:#050607;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:99999;
+
+    transition:
+        opacity .6s ease,
+        visibility .6s;
+
+    overflow:hidden;
+}
+
+#boot-screen.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+#boot-text{
+
+    width:min(760px,90vw);
+
+    white-space:pre-wrap;
+
+    font-family:var(--font-mono);
+
+    font-size:.92rem;
+
+    line-height:1.7;
+
+    color:var(--cyan);
+
+    text-shadow:
+        0 0 6px var(--cyan-glow);
+
+}
