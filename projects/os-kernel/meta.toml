@@ -1,0 +1,5 @@
+id = kernel
+name = os-kernel
+meta = C + asm
+icon = icon-cpu
+color = var(--accent-blue)

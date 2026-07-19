@@ -1,0 +1,34 @@
+[
+  {
+     "id" : "synth",
+     "name" : "chip-synth",
+     "meta" : "Rust",
+     "icon" : "icon-music",
+     "color" : "var(--accent-coral)",
+     "page" : "projects/chip-synth/index.html"
+  },
+  {
+     "id" : "dotfiles",
+     "name" : "dotfiles",
+     "meta" : "config",
+     "icon" : "icon-terminal",
+     "color" : "var(--accent-pink)",
+     "page" : "projects/dotfiles/index.html"
+  },
+  {
+     "id" : "crawler",
+     "name" : "mini-crawler",
+     "meta" : "C++",
+     "icon" : "icon-bug",
+     "color" : "var(--accent-lime)",
+     "page" : "projects/mini-crawler/index.html"
+  },
+  {
+     "id" : "kernel",
+     "name" : "os-kernel",
+     "meta" : "C + asm",
+     "icon" : "icon-cpu",
+     "color" : "var(--accent-blue)",
+     "page" : "projects/os-kernel/index.html"
+  }
+]

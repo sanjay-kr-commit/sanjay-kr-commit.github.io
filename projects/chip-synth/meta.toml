@@ -1,0 +1,5 @@
+id = synth
+name = chip-synth
+meta = Rust
+icon = icon-music
+color = var(--accent-coral)

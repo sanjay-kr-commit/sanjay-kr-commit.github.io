@@ -1,0 +1,5 @@
+id = dotfiles
+name = dotfiles
+meta = config
+icon = icon-terminal
+color = var(--accent-pink)

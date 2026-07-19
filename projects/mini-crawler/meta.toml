@@ -1,0 +1,5 @@
+id = crawler
+name = mini-crawler
+meta = C++
+icon = icon-bug
+color = var(--accent-lime)

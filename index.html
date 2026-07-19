@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sanjay — portfolio</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script src="js/icons.js"></script>
+
+    <div class="app-shell">
+      <!-- HEADER / NAV -->
+      <header class="app-header">
+        <span class="prompt-label">~sanjay$</span>
+        <button
+          class="nav-btn active"
+          data-page="pages/about.html"
+          data-title="~/about"
+        >
+          about
+        </button>
+        <button
+          class="nav-btn"
+          data-page="pages/chiptune.html"
+          data-title="~/chiptune"
+        >
+          chiptune
+        </button>
+        <button
+          class="nav-btn"
+          data-page="pages/contact.html"
+          data-title="~/contact"
+        >
+          contact
+        </button>
+        <div class="header-spacer"></div>
+        <span class="clock" id="clock">00:00:00</span>
+      </header>
+
+      <!-- SINGLE SCREEN — both header nav and launcher target this one window -->
+      <div class="screen-container">
+        <div class="terminal-window" id="terminal-window">
+          <div class="window-titlebar">
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+            <span class="window-title" id="window-title">~/about</span>
+          </div>
+          <!-- loading="lazy" + on-demand src assignment keeps this resource-light:
+           nothing loads until a page is actually requested -->
+          <iframe
+            id="screen-frame"
+            class="screen-frame"
+            title="content"
+            loading="eager"
+            allowtransparency="true"
+          >
+          </iframe>
+        </div>
+      </div>
+
+      <!-- LAUNCHER — floating fab + anchored overlay panel -->
+      <button
+        class="launcher-fab"
+        id="launcher-toggle"
+        aria-label="Open project launcher"
+        aria-expanded="false"
+      >
+        <svg><use href="#icon-apps"></use></svg>
+      </button>
+
+      <div class="click-catcher" id="click-catcher"></div>
+
+      <div class="launcher-panel" id="launcher-panel">
+        <p class="launcher-heading">~/projects</p>
+        <div class="launcher-list" id="launcher-list">
+          <!-- populated by js/main.js from #projects-data -->
+        </div>
+      </div>
+    </div>
+    <script src="js/main.js"></script>
+  </body>
+</html>
