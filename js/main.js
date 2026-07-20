@@ -29,6 +29,7 @@
     launcherList: document.getElementById("launcher-list"),
     clickCatcher: document.getElementById("click-catcher"),
     clock: document.getElementById("clock"),
+    shareButton: document.getElementById("share-btn"),
   };
 
   const gradients = [
@@ -200,13 +201,23 @@
   }
 
   /* ----------------------------------------------------------
-     6. INIT
+   6. SHARE
+   ---------------------------------------------------------- */
+  function initShare() {
+    els.shareButton.addEventListener("click", () => {
+      window.open(els.frame.src, "_blank");
+    });
+  }
+
+  /* ----------------------------------------------------------
+     7. INIT
      ---------------------------------------------------------- */
   async function init() {
     randomizeBackground();
     initNav();
     await initLauncher();
     initClock();
+    initShare();
 
     const defaultBtn = document.querySelector(".nav-btn.active");
     if (defaultBtn) {

@@ -1,4 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="icon-share" viewBox="0 0 24 24">
+    <circle cx="18" cy="5" r="2"/>
+    <circle cx="6" cy="12" r="2"/>
+    <circle cx="18" cy="19" r="2"/>
+    <path d="M8 12l8-6M8 12l8 6"/>
+</symbol>
   <symbol
     id="icon-apps"
     viewBox="0 0 24 24"
