@@ -30,6 +30,7 @@
     clickCatcher: document.getElementById("click-catcher"),
     clock: document.getElementById("clock"),
     shareButton: document.getElementById("share-btn"),
+    pageEntries: document.getElementById("page-entries"),
   };
 
   const gradients = [
@@ -80,12 +81,16 @@
      3. NAV
      ---------------------------------------------------------- */
   function initNav() {
-    els.navButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        els.navButtons.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        setPage(btn.dataset.page, btn.dataset.title);
+    els.pageEntries.addEventListener("click", (e) => {
+      const btn = e.target.closest(".nav-btn");
+      if (!btn) return;
+
+      document.querySelectorAll(".nav-btn").forEach((b) => {
+        b.classList.remove("active");
       });
+
+      btn.classList.add("active");
+      setPage(btn.dataset.page, btn.dataset.title);
     });
   }
 
@@ -209,11 +214,48 @@
     });
   }
 
+  async function injectpageentries() {
+    if (!els.pageEntries) {
+      console.log('Element with id "page-entries" not found.');
+      return;
+    }
+    console.log("from injectpageentries after element");
+    try {
+      const btnResponse = await fetch("../assets/pagebtn.html");
+      if (!btnResponse.ok) {
+        console.log(`Failed to load pagebtn.html (${btnResponse.status})`);
+        return;
+      }
+      const jsonResponse = await fetch("../pages/meta.json");
+      if (!jsonResponse.ok) {
+        console.log(`Failed to load meta.json (${jsonResponse.status})`);
+        return;
+      }
+      const html = await btnResponse.text();
+      const pages = await jsonResponse.json();
+      for (const page of pages) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const btnObj = doc.querySelector(".nav-btn");
+        btnObj.textContent = page.text;
+        btnObj.dataset.page = page["data-page"];
+        btnObj.dataset.title = page["data-title"];
+        btnObj.className += page["focus-class"];
+        console.log(btnObj);
+        els.pageEntries.appendChild(btnObj);
+      }
+      console.log(els.pageEntries);
+    } catch (err) {
+      console.log("Failed to fetch page-entries : ", err);
+    }
+  }
+
   /* ----------------------------------------------------------
      7. INIT
      ---------------------------------------------------------- */
   async function init() {
     randomizeBackground();
+    await injectpageentries();
     initNav();
     await initLauncher();
     initClock();

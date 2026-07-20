@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+SCRIPT_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+cd $SCRIPT_FOLDER
+cd ..
+generatefile="pages/meta.json"
+if [[ -f $generatefile ]]; then
+  rm $generatefile
+fi
+
+processfile() {
+  echo "   {"
+  echo "      \"text\" : \"$(echo $1 | sed -e 's/pages\///g' -e 's/\/index\.html//g')\","
+  echo "      \"data-title\" : \"$(echo $1 | sed -e 's/pages/~/g' -e 's/\/index\.html//g')\","
+  echo "      \"focus-class\" : \"$(
+    if [[ -f "$(echo $1 | sed -e 's/index\.html/active/')" ]]; then
+      echo " active"
+    fi
+  )\","
+  echo "      \"data-page\" : \"$1\""
+  echo "   },"
+}
+
+processpages() {
+  find pages -type f -regex 'pages/[^\/]+/index\.html' | while read -r file; do
+    processfile $file
+  done
+}
+
+processjson() {
+  echo "["
+  processpages | head -n -1
+  echo "   }"
+  echo "]"
+}
+
+processjson >$generatefile

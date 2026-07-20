@@ -1,0 +1,20 @@
+[
+   {
+      "text" : "about",
+      "data-title" : "~/about",
+      "focus-class" : " active",
+      "data-page" : "pages/about/index.html"
+   },
+   {
+      "text" : "chiptune",
+      "data-title" : "~/chiptune",
+      "focus-class" : "",
+      "data-page" : "pages/chiptune/index.html"
+   },
+   {
+      "text" : "contact",
+      "data-title" : "~/contact",
+      "focus-class" : "",
+      "data-page" : "pages/contact/index.html"
+   }
+]

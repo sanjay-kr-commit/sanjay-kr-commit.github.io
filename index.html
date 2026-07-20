@@ -13,27 +13,7 @@
       <!-- HEADER / NAV -->
       <header class="app-header">
         <span class="prompt-label">~sanjay$</span>
-        <button
-          class="nav-btn active"
-          data-page="pages/about.html"
-          data-title="~/about"
-        >
-          about
-        </button>
-        <button
-          class="nav-btn"
-          data-page="pages/chiptune.html"
-          data-title="~/chiptune"
-        >
-          chiptune
-        </button>
-        <button
-          class="nav-btn"
-          data-page="pages/contact.html"
-          data-title="~/contact"
-        >
-          contact
-        </button>
+        <div id="page-entries"></div>
         <div class="header-spacer"></div>
         <span class="clock" id="clock">00:00:00</span>
       </header>
@@ -44,7 +24,8 @@
           <div class="window-titlebar">
             <span class="dot"></span><span class="dot"></span
             ><span class="dot"></span>
-            <span class="window-title" id="window-title">~/about</span>
+            <span class="window-title" id="window-title">~/blank</span>
+            <div class="header-spacer"></div>
             <button id="share-btn" title="Open page" aria-label="Open page">
               <svg width="14" height="14">
                 <use href="#icon-share"></use>
