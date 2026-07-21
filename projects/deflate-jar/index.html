@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deflate-Jar — shrinking a jar by asking each class what it actually uses</title>
+<meta name="description" content="A CLI that walks a jar's class files as raw bytes to build a reachability graph from Main-Class, then rewrites the jar with only what's reachable — and a build script that deflates its own output.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap topbar-inner">
+    <span class="crumb">deflate.jar<span class="crumb-fn">.Main</span></span>
+    <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — DEFLATE-JAR</div>
+    <h1>Most of a jar is classes<br>nothing ever calls.</h1>
+    <p class="lede">A command-line tool that opens a jar, starts from its <code>Main-Class</code>, and walks outward to find every class actually reachable from there — then writes a new jar with just those classes and every non-class resource. What makes it work is a shortcut: it never parses bytecode. It just checks whether one class's name shows up as text inside another class's raw bytes.</p>
+
+    <div class="badges">
+      <span class="badge">Kotlin</span>
+      <span class="badge">JVM</span>
+      <span class="badge">java.util.zip</span>
+      <span class="badge">CLI</span>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/sanjay-kr-commit/Deflate-Jar" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a class="btn ghost" href="#graph">see the reachability walk ↓</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">4</div><div class="l">commits, 9 days</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">source files</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">bytecode parsers used</div></div>
+      <div class="stat"><div class="n">MIT</div><div class="l">license</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what it is</div>
+        <h2>A dependency walk with no parser in it</h2>
+      </div>
+      <div class="prose">
+        <p><code>Main.kt</code> is barely there — it collects every <code>.jar</code> argument, plus any <code>--skip fully.qualified.Name</code> pairs, and calls <code>deflate()</code> on each jar. All the actual work is in <code>deflate.kt</code>, and it does four things in order: confirm the jar is executable (has a manifest with a real <code>Main-Class</code> entry that exists in the jar), read every class's raw bytes as text, follow which classes mention which other classes, and write a new jar containing only the classes that were reached plus everything that isn't a <code>.class</code> file at all — resources, config, whatever else the original jar carried.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">why</div>
+        <h2>Kotlin's compiler is generous with what it emits</h2>
+      </div>
+      <div class="prose">
+        <p>Compile a small Kotlin program and the jar ends up with intrinsics, reflection metadata, and helper classes for language features the program barely touches. A real shrinker like ProGuard or R8 solves this properly by parsing the constant pool and actual bytecode instructions. This tool solves a smaller version of the same problem with something much cruder — and the second commit message says exactly what it's for: <em>"compress generated jar remove unused class files."</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE / THE TRICK -->
+  <section class="reveal" id="graph">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">deflate.kt · ZipFile.dependencyList</div>
+        <h2>Why substring matching on raw class bytes actually works</h2>
+        <p class="q">A JVM class file's constant pool stores every class name it references as a plain UTF-8 string — including names it only ever uses through reflection or generated code. A single-class program is small enough that reading its raw bytes as text and checking whether another class's name appears in that text finds nearly every real reference, without ever decoding a single opcode.</p>
+      </div>
+      <div class="prose">
+        <p><code>dependencyList</code> starts at the main class, reads its bytes with <code>bufferedReader().readText()</code> — bytes-as-text, no class-file parsing at all — and checks, for every other known class in the jar, whether that class's name (minus <code>.class</code>) appears anywhere in the string. Every match gets added to the allowed set and recursed into, with an <code>inspectedList</code> guarding against cycles. It's a heuristic, not a real reference graph, and it can over-include (a name that happens to appear as a substring of something unrelated) far more easily than it can under-include — which is exactly the safe direction to be wrong in for something whose failure mode is "the program doesn't run."</p>
+      </div>
+      <div class="graph-demo">
+        <div class="graph-demo-label">illustrative — not this project's own classes, just a small jar to click through</div>
+        <div class="graph-wrap">
+          <svg id="depGraph" viewBox="0 0 640 280"></svg>
+          <div class="graph-log" id="graphLog"></div>
+        </div>
+        <button class="btn ghost small" id="graphReplay">↺ replay walk</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: build script bootstrapping itself -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">build.gradle.kts · tasks.withType&lt;Jar&gt;</div>
+        <h2>The build script uses the tool on its own output</h2>
+      </div>
+      <div class="prose">
+        <p>There's no shadow/shading plugin here, so the built jar doesn't include the Kotlin runtime by default. The <code>doLast</code> block after the jar task adds it by hand: compile a one-line dummy Kotlin file with <code>-include-runtime</code> just to get a jar containing the stdlib, extract its <code>kotlin/</code> package, and copy that into the freshly built jar before re-zipping it.</p>
+        <p>Then it does something a little unusual: it shells out to <code>kotlin</code> to run the <em>just-built jar itself</em> against its own output — <code>kotlin build/libs/Deflate-Jar.jar build/libs/Deflate-Jar.jar --skip kotlin.Metadata</code> — deflating the jar with the tool the jar itself defines, and explicitly keeping <code>kotlin.Metadata</code> around since Kotlin reflection depends on it existing even though nothing in a typical dependency walk would ever reach it by name.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what's actually rough</div>
+        <h2>Where the heuristic can bite</h2>
+      </div>
+      <div class="lesson-grid">
+        <div class="lesson honest">
+          <div class="l-tag">◐ known gap</div>
+          <p>The <code>--skip</code> flag exists because the substring heuristic can miss classes reached purely through reflection with no literal name anywhere near the caller — <code>kotlin.Metadata</code> is the one it's actually needed for in practice, since annotation processors and the Kotlin reflection library reach it in ways the walk won't discover from <code>Main-Class</code> alone.</p>
+        </div>
+        <div class="lesson honest">
+          <div class="l-tag">◐ known gap</div>
+          <p>String matching a class name that happens to be a common word, or a substring of an unrelated identifier, will over-include — the walk has no way to tell "this text is a real reference" from "this text just happens to contain those characters."</p>
+        </div>
+        <div class="lesson win">
+          <div class="l-tag">✓ landed</div>
+          <p>For the actual use case — one small generated jar, one entry point — the crude version is enough, and it's a fraction of the code a real constant-pool parser would need.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USAGE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">using it</div>
+        <h2>It's just arguments</h2>
+      </div>
+      <div class="code-block"><pre><code>kotlin Deflate-Jar.jar MyApp.jar --skip kotlin.Metadata --skip com.example.PluginRegistry</code></pre></div>
+      <div class="prose">
+        <p>Every <code>.jar</code>-suffixed argument gets processed independently; every <code>--skip</code> flag names a class (dots or slashes, with or without <code>.class</code>) that should never be dropped, regardless of whether the walk reaches it.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Deflate-Jar · maintained by sanjay-kr-commit</div>
+    <div class="fmeta">
+      <a href="https://github.com/sanjay-kr-commit/Deflate-Jar" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a href="../../pages/home/index.html">back to the portfolio ↩</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

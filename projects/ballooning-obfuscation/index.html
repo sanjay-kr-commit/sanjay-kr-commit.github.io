@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ballooning Obfuscation — making five bytes look like fourteen</title>
+<meta name="description" content="An ASCII obfuscation scheme that reverses and pads each byte before adding a positional keystream — two versions, one with an embedded random salt, one keyed by a password through SHA-256.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap topbar-inner">
+    <span class="crumb">$ ./mask.py <span class="cursor-blink">▍</span></span>
+    <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — BALLOONING OBFUSCATION</div>
+    <h1>Five bytes in.<br><span class="g">Twenty-something</span> bytes out.</h1>
+    <p class="lede">Not encryption. Not compression — the opposite of compression, on purpose. Each character gets hex-encoded, reversed, padded, and pushed through a positional keystream, so <code>hello</code> comes out looking like <code class="wrap-code">32BD34A834D835F236E638543986</code>. The name is literal: the data inflates.</p>
+
+    <div class="badges">
+      <span class="badge">Python</span>
+      <span class="badge">hashlib / SHA-256</span>
+      <span class="badge">ASCII</span>
+      <span class="badge">no dependencies</span>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/sanjay-kr-commit/Balooning-obfuscation" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a class="btn ghost" href="#demo">run it in the browser ↓</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">4</div><div class="l">scripts, 2 variants</div></div>
+      <div class="stat"><div class="n">~3x</div><div class="l">size, roughly</div></div>
+      <div class="stat"><div class="n">2 days</div><div class="l">from idea to 4 commits</div></div>
+      <div class="stat"><div class="n">LGPL-2.1</div><div class="l">license</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what it is, in the author's own words</div>
+        <h2>The README says it plainly</h2>
+      </div>
+      <div class="readme-quote">
+        <p>"A ASCII data obfuscation method which make data inflate."</p>
+        <p class="readme-bg">"I'm not from cybersecurity, i made it because I thought why not."</p>
+      </div>
+      <div class="prose">
+        <p>That's the whole premise, and it's worth taking at face value: this repo is not claiming to be cryptography. It's an obfuscation scheme — something that makes text unreadable to a casual glance without pretending to survive an actual attacker. The repo has two independent takes on that idea, written a day apart, and they trade off differently.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE TRICK: ballooning -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">the actual "ballooning" step</div>
+        <h2>Reverse a padded hex string and the digit count grows</h2>
+        <p class="q">Every version in this repo does the same first move to each character before anything else happens to it.</p>
+      </div>
+      <div class="prose">
+        <p>Take a character, get its ASCII value, write it as 2-digit hex (<code>h</code> = <code>68</code>). Append a throwaway digit — always <code>1</code> — making a 3-digit string (<code>681</code>). Reverse it (<code>186</code>). Parse <em>that</em> back as hex. The reversal is what does the inflating: reversing a 3-digit hex string and re-reading it as a number routinely produces a value with more hex digits than the original 2-digit encoding did, especially once a keystream gets added on top. Decoding just runs the same steps backward — take the resulting hex, reverse it, drop the last (throwaway) digit, and the original 2-digit hex comes back.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TWO VERSIONS -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">two scripts, one day apart</div>
+        <h2>From a random salt to a password</h2>
+      </div>
+
+      <div class="variant-grid">
+        <div class="variant-card">
+          <div class="variant-tag">mask.py / unmask.py</div>
+          <p>A random salt (1 to 0xFFF) is generated per message and <strong>embedded directly in the output</strong> — its own hex digit count as a length-prefix, then the salt itself. On top of that, each character position runs through a fixed quadratic <code>(37·i² + 59·i + 101) mod 0xFFF</code> — the "chaos step" — so the same letter at two different positions in the same message encodes differently.</p>
+          <p class="variant-honest">Because the salt travels inside the encoded text itself, <code>unmask.py</code> needs no secret to reverse it — anyone with the encoded string can decode it. This version obfuscates against a glance, not against anyone willing to read <code>unmask.py</code>.</p>
+        </div>
+        <div class="variant-card">
+          <div class="variant-tag">enc_mask.py / dec_unmask.py</div>
+          <p>The salt is dropped. Instead, each position's keystream comes from <code>SHA256(f"{password}:{position}")</code>, truncated to its first two bytes. Decoding needs the same password that encoding used — this version has an actual secret involved, where the first didn't.</p>
+          <p class="variant-honest">Reusing the same password across messages reuses the exact same position-indexed keystream every time, which is the same structural weakness a two-time pad has — it's a step toward "keyed," not a step into "secure."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE DEMO -->
+  <section class="reveal" id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">try it — runs entirely in this tab</div>
+        <h2>Both variants, reimplemented in JS</h2>
+        <p>Byte for byte the same steps as <code>mask.py</code>/<code>unmask.py</code> and <code>enc_mask.py</code>/<code>dec_unmask.py</code>, including the real SHA-256 keystream via the browser's own crypto API.</p>
+      </div>
+
+      <div class="demo-tabs">
+        <button class="demo-tab active" data-variant="salt">random-salt version</button>
+        <button class="demo-tab" data-variant="password">password version</button>
+      </div>
+
+      <div class="demo-box">
+        <div class="demo-row">
+          <label>message</label>
+          <input id="demoMessage" type="text" value="hello" spellcheck="false">
+        </div>
+        <div class="demo-row" id="passwordRow" hidden>
+          <label>password</label>
+          <input id="demoPassword" type="text" value="correcthorse" spellcheck="false">
+        </div>
+        <div class="demo-arrow">↓ encode</div>
+        <div class="demo-row">
+          <label>encoded</label>
+          <input id="demoEncoded" type="text" readonly spellcheck="false">
+        </div>
+        <div class="demo-arrow">↓ decode</div>
+        <div class="demo-row">
+          <label>decoded</label>
+          <input id="demoDecoded" type="text" readonly spellcheck="false">
+        </div>
+        <div class="demo-note" id="demoNote"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHALLENGES / HONESTY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what this is not</div>
+        <h2>Said plainly, so nobody mistakes it for security</h2>
+      </div>
+      <div class="lesson-grid">
+        <div class="lesson honest">
+          <div class="l-tag">◐ by design</div>
+          <p>This is obfuscation, not encryption. Nothing here has been reviewed against real cryptanalysis, and the README says as much up front — the value of the project was in building the round-trip, not in producing something safe to rely on.</p>
+        </div>
+        <div class="lesson honest">
+          <div class="l-tag">◐ known limitation</div>
+          <p><code>mask.py</code>'s salt is embedded in plain sight in its own output, so it adds noise, not secrecy — anyone can run <code>unmask.py</code> on the encoded text with no additional information.</p>
+        </div>
+        <div class="lesson win">
+          <div class="l-tag">✓ landed</div>
+          <p>Moving from an embedded random salt to a password-derived, position-indexed keystream is a real improvement in kind, even without being a real cryptosystem — it's the difference between "no secret exists" and "a secret exists and this scheme doesn't use it very well yet."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">if this gets picked back up</div>
+        <h2>What an actual next version would need</h2>
+      </div>
+      <ul class="future-list">
+        <li>A per-message nonce mixed into the password-derived keystream, so the same password never produces the same stream twice.</li>
+        <li>A real KDF (PBKDF2/Argon2) instead of a single unsalted SHA-256 call per position.</li>
+        <li>A clear line in the README between "obfuscation for fun" and "don't use this to protect anything real" — it's already implied, but it could be a header instead of a paragraph.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Balooning-obfuscation · maintained by sanjay-kr-commit</div>
+    <div class="fmeta">
+      <a href="https://github.com/sanjay-kr-commit/Balooning-obfuscation" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a href="../../pages/home/index.html">back to the portfolio ↩</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

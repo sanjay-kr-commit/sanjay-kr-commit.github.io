@@ -1,0 +1,8 @@
+id = deflate-jar
+name = Deflate-Jar
+meta=kotlin,jvm,jar,tooling,build-tools
+icon = icon-code
+color = var(--accent-blue)
+description=A CLI that walks a jar's class files as raw bytes to build a reachability graph from Main-Class, then rewrites the jar with only what's reachable, plus resources kept as-is.
+github=https://github.com/sanjay-kr-commit/Deflate-Jar
+date = 2024-02-16

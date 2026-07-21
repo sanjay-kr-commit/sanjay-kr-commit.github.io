@@ -1,0 +1,8 @@
+id = tictactoe-kotlin-dsl
+name = Kotlin DSL Tic-Tac-Toe
+meta=kotlin,dsl,extension-functions,jvm,art-project
+icon = icon-apps
+color = var(--accent-lime)
+description=Tic-tac-toe written as a Kotlin DSL — infix extension functions, scoped builder lambdas, and a static rule-based bot, built to see if game logic could read like a Compose UI declaration.
+github=https://github.com/sanjay-kr-commit/tic-tac-toe-with-kotlin-dsl
+date = 2023-12-24

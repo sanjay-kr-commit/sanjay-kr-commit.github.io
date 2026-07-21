@@ -1,0 +1,8 @@
+id = timepass
+name = timepass
+meta=kotlin,bash,jvm,scripts,esolang,cli,collection
+icon = icon-code
+color = var(--accent-green)
+description=A shelf of small scripts and proof-of-concepts — a Brainfuck interpreter, a brute-forced hello world, a string-rewriting expression evaluator, and a bash shebang trick for JVM binaries — built because I wondered if each one was possible, not because anyone asked for them.
+github=https://github.com/sanjay-kr-commit/script-and-small-program
+date = 2022-11-30

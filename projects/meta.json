@@ -20,5 +20,71 @@
      "github" : "https://github.com/sanjay-kr-commit/Tanoshi-Multiplatform",
      "date" : "2025-01-26",
      "page" : "projects/tanoshi/index.html"
+  },
+  {
+     "id" : "huffman-encoding",
+     "name" : "Huffman Encoding",
+     "meta" : "kotlin,compose-desktop,compression,algorithms",
+     "icon" : "icon-cpu",
+     "color" : "var(--accent-green)",
+     "description" : "A from-scratch Huffman compressor with a Compose Desktop shell: per-segment trees, a run-length trick for serializing the tree itself, and the byte-offset issue that comes with it.",
+     "github" : "https://github.com/sanjay-kr-commit/huffman-encoding",
+     "date" : "2025-09-30",
+     "page" : "projects/huffman-encoding/index.html"
+  },
+  {
+     "id" : "deflate-jar",
+     "name" : "Deflate-Jar",
+     "meta" : "kotlin,jvm,jar,tooling,build-tools",
+     "icon" : "icon-code",
+     "color" : "var(--accent-blue)",
+     "description" : "A CLI that walks a jar's class files as raw bytes to build a reachability graph from Main-Class, then rewrites the jar with only what's reachable, plus resources kept as-is.",
+     "github" : "https://github.com/sanjay-kr-commit/Deflate-Jar",
+     "date" : "2024-02-16",
+     "page" : "projects/deflate-jar/index.html"
+  },
+  {
+     "id" : "ballooning-obfuscation",
+     "name" : "Ballooning Obfuscation",
+     "meta" : "python,obfuscation,ascii,sha256,toy-cipher",
+     "icon" : "icon-bug",
+     "color" : "var(--accent-purple)",
+     "description" : "An ASCII obfuscation scheme that reverses and pads each byte before adding a positional keystream — one version with an embedded random salt, one keyed by a password through SHA-256.",
+     "github" : "https://github.com/sanjay-kr-commit/Balooning-obfuscation",
+     "date" : "2026-06-24",
+     "page" : "projects/ballooning-obfuscation/index.html"
+  },
+  {
+     "id" : "tictactoe-kotlin-dsl",
+     "name" : "Kotlin DSL Tic-Tac-Toe",
+     "meta" : "kotlin,dsl,extension-functions,jvm,art-project",
+     "icon" : "icon-apps",
+     "color" : "var(--accent-lime)",
+     "description" : "Tic-tac-toe written as a Kotlin DSL — infix extension functions, scoped builder lambdas, and a static rule-based bot, built to see if game logic could read like a Compose UI declaration.",
+     "github" : "https://github.com/sanjay-kr-commit/tic-tac-toe-with-kotlin-dsl",
+     "date" : "2023-12-24",
+     "page" : "projects/tictactoe-kotlin-dsl/index.html"
+  },
+  {
+     "id" : "panel-transparency-toggle",
+     "name" : "Panel Transparency Toggle",
+     "meta" : "qml,kde-plasma,plasma6,applet,linux",
+     "icon" : "icon-share",
+     "color" : "var(--accent-blue)",
+     "description" : "A Plasma 6 panel applet that toggles background transparency and opacity — a port of psifidotos's Plasma 5 widget, including the QML parent-chain walk it takes to even find its own containment.",
+     "github" : "https://github.com/sanjay-kr-commit/panelTransparencyToggleForPlasma6",
+     "date" : "2024-04-17",
+     "page" : "projects/panel-transparency-toggle/index.html"
+  },
+  {
+     "id" : "timepass",
+     "name" : "timepass",
+     "meta" : "kotlin,bash,jvm,scripts,esolang,cli,collection",
+     "icon" : "icon-code",
+     "color" : "var(--accent-green)",
+     "description" : "A shelf of small scripts and proof-of-concepts — a Brainfuck interpreter, a brute-forced hello world, a string-rewriting expression evaluator, and a bash shebang trick for JVM binaries — built because I wondered if each one was possible, not because anyone asked for them.",
+     "github" : "https://github.com/sanjay-kr-commit/script-and-small-program",
+     "date" : "2022-11-30",
+     "page" : "projects/script-and-small-program/index.html"
   }
 ]

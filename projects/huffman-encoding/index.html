@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Huffman Encoding — a compressor built to see how the bits fall</title>
+<meta name="description" content="A from-scratch Huffman compressor written in Kotlin with a Compose Desktop shell around it: how the tree gets serialized without storing full root-to-leaf paths, and why the segment buffer trades ratio for simplicity.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="bits" aria-hidden="true"></canvas>
+
+<nav class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <span class="node-badge"><span class="dot"></span>encoding.huffman.kotlin</span>
+    <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — HUFFMAN ENCODING</div>
+    <h1>A compressor with <span class="g">no library</span> between you and the bits.</h1>
+    <p class="lede">A Huffman coder written from the frequency table up, wrapped in a small Compose Desktop app so it's actually usable instead of just a script that prints numbers. The interesting part isn't that it compresses files — it's how the tree gets written to disk without spending a full byte per path segment.</p>
+
+    <div class="badges">
+      <span class="badge">Kotlin</span>
+      <span class="badge">Compose Multiplatform · Desktop</span>
+      <span class="badge">Coroutines</span>
+      <span class="badge">JVM</span>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/sanjay-kr-commit/huffman-encoding" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a class="btn ghost" href="#demo">try the algorithm ↓</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">5</div><div class="l">commits, 2 days</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">kotlin files</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">tree per segment</div></div>
+      <div class="stat"><div class="n">MIT</div><div class="l">license</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what it is</div>
+        <h2>A GUI wrapper around an algorithm that didn't need one</h2>
+      </div>
+      <div class="prose">
+        <p>The whole app is two buttons and two text fields: an input file, an output file, a buffer size, and a compress/decompress toggle. Click start, and it either <code>deflate()</code>s or <code>inflate()</code>s the file through a log window that streams progress line by line. There's no drag-and-drop, no native file picker — you type a path into a <code>TextField</code> and the app tells you whether it found the file. It's not meant to be a product. It's a way to watch the algorithm run against real files instead of a hard-coded string in a test.</p>
+        <p>Underneath the UI, the file isn't compressed as one block. It's split into fixed-size segments (<code>bufferSize</code>, default 1 MB), and <strong>each segment builds and stores its own Huffman tree</strong>. That's a real tradeoff: a single global tree over the whole file would usually compress better, but it means holding the whole file's frequency table in memory, or a second pass over the data. Segmenting lets the app stream — read a chunk, build a tree just for that chunk, write it, move on — at the cost of repeating tree overhead every megabyte.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">why</div>
+        <h2>Wanting to see the table, not just call one</h2>
+      </div>
+      <div class="prose">
+        <p><code>java.util.zip.Deflater</code> already does this, better, in the standard library. Using it would have taken an afternoon. Writing one from the frequency table up takes longer, and that was the point — Huffman coding is one of those algorithms that's easy to describe in a paragraph and surprisingly fiddly to actually get right once you have to serialize the tree, handle a file that isn't evenly divisible by the buffer size, and make signed bytes behave like the unsigned values they secretly aren't.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">architecture</div>
+        <h2>Four files, one job each</h2>
+      </div>
+      <div class="filetree">
+        <div class="ft-row"><span class="ft-name">App.kt</span><span class="ft-desc">Compose window, the two screens (form + log), and the coroutine that runs deflate/inflate off the UI thread</span></div>
+        <div class="ft-row"><span class="ft-name">HuffmanNode.kt</span><span class="ft-desc">the tree itself — a data class with left/right/code/freq, plus its own serialize/deserialize logic</span></div>
+        <div class="ft-row"><span class="ft-name">extensions.kt</span><span class="ft-desc">everything that turns bytes into a frequency table, a tree, a path table, and back — the actual algorithm</span></div>
+        <div class="ft-row"><span class="ft-name">consts.kt</span><span class="ft-desc">one leftover line: <code>println(128.toString(2))</code> — a scratchpad from working out the byte-offset trick below, never deleted</span></div>
+      </div>
+      <div class="prose">
+        <p>The file format written by <code>deflate()</code> is a flat sequence of segments: a 4-byte buffer size up front, then per segment — tree size (int), serialized tree, content size (int), and the packed bits. <code>inflate()</code> just reads that structure back in order. There's no index, no seeking; it's a stream in both directions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: tree serialization -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">HuffmanNode.serialize</div>
+        <h2>Storing a tree without storing every path</h2>
+        <p class="q">A naive serializer writes one byte per node telling you "leaf" or "branch," then recurses. This one does that too, at first — then compresses <em>that</em> with a small run-length trick before it ever gets written to disk.</p>
+      </div>
+      <div class="prose">
+        <p><code>serializeNode</code> walks the tree depth-first and emits <code>0</code> for a branch, or <code>1</code> followed by the leaf's byte value for a leaf. That's the naive path — one byte per tree node, which for a tree over 256 possible byte values is already a lot of <code>0</code>s in a row before you hit a leaf on a long branch. <code>deflatePath()</code> then walks that same byte array and replaces every run of leading zeros with a single count byte: instead of <code>0,0,0,0,1,code</code> you get <code>4,code</code>. <code>inflatePath()</code> on the way back just expands each count byte into that many zeros followed by a <code>1</code>. It's the same idea as run-length encoding, applied specifically to the shape of a binary tree's path bytes rather than to the file's actual content.</p>
+      </div>
+      <div class="tree-demo-wrap">
+        <div class="tree-canvas-label">live from the box below — type something and the tree rebuilds</div>
+        <svg id="treeSvg" viewBox="0 0 900 340" aria-label="Huffman tree built from the input below"></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: byte offset -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">the -128 / +128 you'll find scattered around</div>
+        <h2>Kotlin's Byte doesn't want to hold a byte value</h2>
+      </div>
+      <div class="prose">
+        <p>A file byte is naturally 0–255. Kotlin's <code>Byte</code> is signed, -128 to 127 — the same 8 bits, different label on the range. Every place the code reads a raw byte from a file it widens it with <code>and 0xff</code> to get back to 0–255 for use as a frequency-table key. But when a leaf's <em>code</em> (that 0–255 value) gets written into the serialized tree as an actual <code>Byte</code>, it has to fit in -128..127 first — hence <code>(code - 128).toByte()</code> going out, and <code>+ 128</code> coming back in on deserialize. <code>consts.kt</code> is the one line left over from working that out by hand before trusting it to the actual code.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: segment boundary -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">extensions.kt · deflate()</div>
+        <h2>A file rarely divides evenly into 1 MB pieces</h2>
+      </div>
+      <div class="prose">
+        <p>Every segment except (maybe) the last is exactly <code>bufferSize</code> bytes. The last one is shorter, and the frequency table and Huffman tree don't know that on their own — the code has to tell the decoder where the real data stops. The fix here is small and a little blunt: if a segment reads fewer bytes than the buffer size, the next unused byte is set to <code>-1</code> and folded into that segment's own frequency table as a genuine symbol, so the tree learns an explicit "end of segment" leaf. It works, and it costs one symbol out of the alphabet to do it — a simpler and less efficient answer than a length-prefixed segment would have been, chosen because it reused the tree that already existed instead of adding another field to the format.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE DEMO -->
+  <section class="reveal" id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">try it — runs entirely in this tab</div>
+        <h2>Type something, watch the table build</h2>
+        <p>This reimplements the actual algorithm from <code>extensions.kt</code> and <code>HuffmanNode.kt</code> in JavaScript: frequency table → priority queue → tree → path table → the same run-length tree serialization described above. Numbers below are computed live from what you type, not looked up.</p>
+      </div>
+
+      <div class="demo-box">
+        <textarea id="demoInput" rows="3" spellcheck="false" placeholder="type or paste text here">the quick brown fox jumps over the lazy dog</textarea>
+        <div class="demo-stats" id="demoStats"></div>
+        <div class="demo-table-wrap">
+          <table class="demo-table" id="demoTable">
+            <thead><tr><th>char</th><th>freq</th><th>code</th><th>bits</th></tr></thead>
+            <tbody id="demoTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHALLENGES / HONESTY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what's actually rough</div>
+        <h2>The parts that would change first</h2>
+      </div>
+      <div class="lesson-grid">
+        <div class="lesson honest">
+          <div class="l-tag">◐ rough edge</div>
+          <p>There's no file picker. <code>fileNotFound</code> flips based on whatever string is in the text field, so a typo just quietly says "File Not Found" with no further hint. Fine for a tool you built for yourself; the first thing to fix for anyone else.</p>
+        </div>
+        <div class="lesson honest">
+          <div class="l-tag">◐ tradeoff, not a bug</div>
+          <p>Per-segment trees mean a file with very uneven regions (say, a header block and a body with a totally different byte distribution) compresses better than a file that's uniform throughout but larger than the buffer — because a single global tree amortizes its overhead across the whole file, and this design pays that overhead every segment.</p>
+        </div>
+        <div class="lesson win">
+          <div class="l-tag">✓ landed</div>
+          <p>The tree-path run-length trick in <code>deflatePath</code>/<code>inflatePath</code> is a genuinely small addition that meaningfully shrinks the stored tree for skewed frequency distributions — long runs of branch nodes on the way to a rare symbol compress to a single count byte instead of one byte each.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">if this gets picked back up</div>
+        <h2>What's next, roughly in order</h2>
+      </div>
+      <ul class="future-list">
+        <li>Canonical Huffman codes, so the tree can be described by code lengths alone instead of full left/right structure — a smaller format on top of the same algorithm.</li>
+        <li>A real file chooser instead of a raw path text field.</li>
+        <li>An option for one global frequency table across the whole file, with segmenting as the non-default choice instead of the only one.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>huffman-encoding · maintained by sanjay-kr-commit</div>
+    <div class="fmeta">
+      <a href="https://github.com/sanjay-kr-commit/huffman-encoding" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a href="../../pages/home/index.html">back to the portfolio ↩</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

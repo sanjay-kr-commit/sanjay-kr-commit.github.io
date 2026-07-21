@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>timepass — small scripts and experiments</title>
+<meta name="description" content="A collection of small scripts and proof-of-concepts: a Brainfuck interpreter, a brute-forced hello world, a string-rewriting expression evaluator, and a bash startup injector.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="#home" data-nav="home">
+    <span class="brand-prompt">~</span><span class="brand-name">timepass</span>
+  </a>
+  <p class="brand-tag">small scripts. proofs of concept. things I wondered about.</p>
+</header>
+
+<main id="main">
+
+  <!-- ============ HOME ============ -->
+  <section id="view-home" class="view active" data-view="home">
+    <div class="wrap">
+      <div class="home-hero reveal">
+        <p class="eyebrow">$ ls ~/timepass</p>
+        <h1>A shelf, not a portfolio.</h1>
+        <p class="home-lede">
+          These aren't products. They're the stuff that piled up while I was learning how things work
+          underneath — an interpreter, a joke, a string-rewriting calculator, a shell trick.
+          Each one exists because I wanted to know if it could be built, not because anyone asked for it.
+        </p>
+      </div>
+
+      <div class="card-grid">
+
+        <a class="proj-card reveal" href="#bf" data-nav="bf" data-accent="amber">
+          <div class="proj-card-top">
+            <span class="lang-badge">Kotlin</span>
+            <span class="proj-glyph">[ ]</span>
+          </div>
+          <h2>bfInterpreter</h2>
+          <p>A Brainfuck interpreter. Eight symbols, one flat tape, and it's somehow Turing-complete. That never stopped being funny to me.</p>
+          <span class="card-cta">open project →</span>
+        </a>
+
+        <a class="proj-card reveal" href="#brute" data-nav="brute" data-accent="coral">
+          <div class="proj-card-top">
+            <span class="lang-badge">Kotlin</span>
+            <span class="proj-glyph">&gt;_</span>
+          </div>
+          <h2>bruteForceHelloWorld</h2>
+          <p>Hello World, printed the slow way — every character brute-forced from "a" upward, like an odometer settling on a value.</p>
+          <span class="card-cta">open project →</span>
+        </a>
+
+        <a class="proj-card reveal" href="#expr" data-nav="expr" data-accent="cyan">
+          <div class="proj-card-top">
+            <span class="lang-badge">Kotlin</span>
+            <span class="proj-glyph">∑</span>
+          </div>
+          <h2>expressionEvaluator</h2>
+          <p>A calculator that solves math by rewriting the expression string itself, one operator at a time. No parser generator, no AST.</p>
+          <span class="card-cta">open project →</span>
+        </a>
+
+        <a class="proj-card reveal" href="#inject" data-nav="inject" data-accent="green">
+          <div class="proj-card-top">
+            <span class="lang-badge">Bash</span>
+            <span class="proj-glyph">#!</span>
+          </div>
+          <h2>injectBashStartup</h2>
+          <p>Staples a bootstrap script onto a compiled JVM program so it runs like a binary — no <code>java -jar</code> required.</p>
+          <span class="card-cta">open project →</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BF INTERPRETER ============ -->
+  <section id="view-bf" class="view" data-view="bf" data-accent="amber">
+    <div class="wrap">
+
+      <div class="proj-hero reveal">
+        <p class="eyebrow">$ ./bfInterpreter helloWorld.bf</p>
+        <h1>bfInterpreter</h1>
+        <p class="proj-desc">A Brainfuck interpreter written in Kotlin. Give it a <code>.bf</code> file, it reads the tape, runs the eight instructions, and prints whatever falls out.</p>
+        <div class="hero-meta">
+          <span class="lang-badge">Kotlin</span>
+          <a class="ghost-btn" data-github-link href="#" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> What it does</h2>
+        <p>It's a Brainfuck interpreter: eight characters — <code>+ - &gt; &lt; . , [ ]</code> — operating on a tape of
+        memory cells and a single pointer. The interpreter reads a source file, walks through it character by character,
+        and executes each instruction against that tape. That's the entire language. No variables, no functions,
+        no types — just a pointer, some cells, and loops.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Why I built it</h2>
+        <p>I wondered if this was possible. Brainfuck is deliberately minimal — the whole point is proving that
+        a language this small can still compute anything a "real" language can. Writing the interpreter felt like
+        the fastest way to actually believe that, instead of just reading about it.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> How it works</h2>
+        <p>The tape is an <code>ArrayList&lt;Int&gt;</code> that starts with a single zeroed cell and grows to the right
+        as the pointer moves past its current size. There's no fixed 30,000-cell buffer like the "classic" spec —
+        cells get allocated lazily, on demand. A <code>Stack&lt;Int&gt;</code> tracks where each <code>[</code> loop began,
+        so <code>]</code> knows where to jump back to.</p>
+        <p>Try it below — this runs the actual instruction set against <code>helloWorld.bf</code> from the repo,
+        one instruction at a time, so you can watch the tape change.</p>
+      </article>
+
+      <div class="demo-panel reveal" data-demo="bf">
+        <div class="demo-panel-head">
+          <span class="demo-panel-title">tape.live</span>
+          <div class="demo-controls">
+            <button type="button" data-bf-action="step">step</button>
+            <button type="button" data-bf-action="run">run</button>
+            <button type="button" data-bf-action="reset">reset</button>
+          </div>
+        </div>
+        <div class="bf-source" aria-label="Brainfuck source, current instruction highlighted">
+          <span class="bf-source-code" data-bf-source></span>
+        </div>
+        <div class="bf-tape" data-bf-tape role="img" aria-label="Memory tape"></div>
+        <div class="bf-output-row">
+          <span class="bf-output-label">output →</span>
+          <span class="bf-output" data-bf-output></span><span class="bf-cursor">▌</span>
+        </div>
+        <p class="demo-note">Note: the real interpreter doesn't bounds-check a pointer moved below cell 0 — it'll
+        throw. This demo clamps it so the page doesn't crash on you.</p>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Interesting details</h2>
+        <p>Loop matching isn't precomputed. When <code>[</code> is hit with a zero cell, the interpreter skips forward
+        by searching the rest of the source for the next <code>]</code> using plain string search — not a real
+        matching-bracket scan. For flat loops like the ones in <code>helloWorld.bf</code> that's fine. For nested loops,
+        it would jump to the wrong <code>]</code>, because it has no concept of nesting depth while skipping.
+        I noticed this reading back through the code, not while writing it.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Challenges</h2>
+        <p>Getting the jump arithmetic right took a few tries. On <code>]</code>, the loop start index is set to
+        <code>loopStart - 1</code>, relying on the main loop's <code>index++</code> at the bottom to land back exactly
+        on the <code>[</code>. Off-by-one errors here don't crash loudly — they just quietly execute the wrong
+        instruction, which is a much slower bug to notice.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Lessons learned</h2>
+        <p>A naive matching-bracket search is good enough until it isn't. If I revisit this, the fix is a jump table
+        built once at load time — precompute every <code>[</code>/<code>]</code> pair before execution instead of
+        re-scanning the source mid-run.</p>
+      </article>
+
+      <div class="repo-panel reveal">
+        <h2><span class="sec-prompt">#</span> Repository</h2>
+        <dl class="repo-list">
+          <div><dt>GitHub</dt><dd><a data-github-link href="#" target="_blank" rel="noopener">repository link</a></dd></div>
+          <div><dt>License</dt><dd data-license-placeholder>—</dd></div>
+          <div><dt>Language</dt><dd>Kotlin</dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ BRUTE FORCE HELLO WORLD ============ -->
+  <section id="view-brute" class="view" data-view="brute" data-accent="coral">
+    <div class="wrap">
+
+      <div class="proj-hero reveal">
+        <p class="eyebrow">$ ./bruteForceHelloWorld</p>
+        <h1>bruteForceHelloWorld</h1>
+        <p class="proj-desc">The easiest program you'll ever write, done the hardest way on purpose: every character
+        of "Hello World" is brute-forced from <code>a</code> upward instead of just being printed.</p>
+        <div class="hero-meta">
+          <span class="lang-badge">Kotlin</span>
+          <a class="ghost-btn" data-github-link href="#" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> What it does</h2>
+        <p>It prints "Hello World" — or whatever text you give it — one character at a time, but each character
+        is "discovered" by counting up from <code>a</code> until it matches, overwriting the same terminal line as
+        it goes. It looks like the program is cracking the string, slot-machine style, even though it already
+        knows the answer.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Why I built it</h2>
+        <p>I wondered if this was possible — specifically, whether I could make the most boring program in
+        programming look like it was working hard for something it already knew.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> How it works</h2>
+        <p>For each character in the target string, it loops from <code>'a'</code> up to that character, printing
+        the in-progress attempt with a carriage return (<code>\r</code>) so it overwrites in place instead of
+        scrolling. A <code>Thread.sleep(10)</code> between attempts is what actually sells the effect — without it,
+        the "search" would resolve instantly. A <code>-np</code> flag turns off the trailing <code>&lt;-</code>
+        pointer.</p>
+        <p>Type something and watch the real algorithm run below.</p>
+      </article>
+
+      <div class="demo-panel reveal" data-demo="brute">
+        <div class="demo-panel-head">
+          <span class="demo-panel-title">terminal.live</span>
+        </div>
+        <div class="brute-controls">
+          <label class="field-label" for="brute-input">input</label>
+          <input id="brute-input" type="text" maxlength="24" value="Hello World" autocomplete="off" spellcheck="false">
+          <label class="checkbox-label"><input type="checkbox" id="brute-pointer" checked> show pointer</label>
+          <button type="button" data-brute-action="run">run</button>
+        </div>
+        <div class="brute-terminal" aria-live="polite">
+          <span data-brute-output>&nbsp;</span><span class="bf-cursor">▌</span>
+        </div>
+        <p class="demo-note">Kotlin's char ranges are ASCII-ordered, so this only "brute-forces" characters at or
+        after <code>a</code> (97). Capitals, digits, and spaces sit earlier in the range — the loop body never runs
+        for them, so they resolve instantly instead of scanning. Try "Hello World" and watch capital H and the
+        space appear instantly while the lowercase letters scan. That's a real quirk in the code, not a bug in
+        this demo.</p>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Interesting details</h2>
+        <p>The instant-resolve behavior for uppercase letters and spaces wasn't planned. <code>'a'..i</code> is an
+        empty range whenever <code>i</code> comes before <code>'a'</code> in character order, so the inner loop
+        silently does nothing and the buffer just appends the character. The visual effect is inconsistent across
+        a sentence purely as a side effect of ASCII ordering — which is a more interesting outcome than if I'd
+        planned it.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Challenges</h2>
+        <p>Getting the carriage-return overwrite to look right in a real terminal took some trial and error —
+        the buffer has to be rebuilt and reprinted in full on every single attempt, or leftover characters from a
+        longer previous line stick around at the end.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Lessons learned</h2>
+        <p>Small, deliberately silly programs are a good place to notice language quirks — the ASCII-ordering
+        behavior here is something I'd have never run into writing "real" code.</p>
+      </article>
+
+      <div class="repo-panel reveal">
+        <h2><span class="sec-prompt">#</span> Repository</h2>
+        <dl class="repo-list">
+          <div><dt>GitHub</dt><dd><a data-github-link href="#" target="_blank" rel="noopener">repository link</a></dd></div>
+          <div><dt>License</dt><dd data-license-placeholder>—</dd></div>
+          <div><dt>Language</dt><dd>Kotlin</dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ EXPRESSION EVALUATOR ============ -->
+  <section id="view-expr" class="view" data-view="expr" data-accent="cyan">
+    <div class="wrap">
+
+      <div class="proj-hero reveal">
+        <p class="eyebrow">$ ./expressionEvaluator "2*(3+4)"</p>
+        <h1>expressionEvaluator</h1>
+        <p class="proj-desc">A command-line calculator that solves expressions by rewriting the string itself —
+        no tokenizer, no AST, no parser generator. Just string surgery, one operator at a time.</p>
+        <div class="hero-meta">
+          <span class="lang-badge">Kotlin</span>
+          <a class="ghost-btn" data-github-link href="#" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> What it does</h2>
+        <p>You give it a math expression — from the command line or an interactive prompt — and it evaluates it.
+        It supports <code>+ - * / % ^</code> and treats <code>()</code>, <code>[]</code>, and <code>{}</code> as
+        fully interchangeable brackets, so <code>2*[3+{4}]</code> is valid. It also inserts implicit multiplication:
+        <code>2(3)</code> is read as <code>2*(3)</code>.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Why I built it</h2>
+        <p>I wanted to see how far I could get evaluating math without building a "real" parser — no tokens, no
+        tree, just treating the expression as a string and repeatedly rewriting it in place until one number is
+        left.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> How it works</h2>
+        <p>Every operation follows the same shape: find an operator character in the string, walk backward and
+        forward from it to pull out the two numeric operands (digit by digit), compute the result, and splice it
+        back into the string in place of <code>"a+b"</code>. That function gets called on repeat, in BODMAS order —
+        <code>^</code>, then <code>/</code>, then <code>*</code>, then <code>+</code>, then <code>-</code>, then
+        <code>%</code> — until nothing matches. Brackets are resolved innermost-first by finding the last open
+        bracket and its matching close, evaluating what's between them, and substituting the result back in.</p>
+      </article>
+
+      <div class="demo-panel reveal" data-demo="expr">
+        <div class="demo-panel-head">
+          <span class="demo-panel-title">evaluator.live</span>
+        </div>
+        <div class="expr-controls">
+          <label class="field-label" for="expr-input">expression</label>
+          <input id="expr-input" type="text" value="(2+3)*(4-1)^2" autocomplete="off" spellcheck="false">
+          <button type="button" data-expr-action="run">evaluate</button>
+        </div>
+        <div class="expr-trace" data-expr-trace aria-live="polite"></div>
+        <p class="demo-note">The trace shows each rewrite step the real algorithm performs — this is the same
+        string-surgery approach as the Kotlin source, reimplemented in JS for the browser.</p>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Interesting details</h2>
+        <p>Exponents don't call a power function. <code>a^b</code> gets expanded into a literal repeated-multiplication
+        string — <code>a*a*a...</code>, <code>b</code> times — and then the normal multiplication pass evaluates that.
+        It's a strange way to do it, but it kept the entire evaluator down to one small family of operations instead
+        of needing a special case.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Challenges</h2>
+        <p>Telling subtraction apart from a negative sign was the fiddliest part. <code>3+-4</code> and
+        <code>-3+4</code> both contain a <code>-</code>, but only one of them is a binary operator at that index.
+        The fix ended up being a plain position check — subtraction only fires if the <code>-</code> isn't at the
+        very start of the string — which is a blunt rule, but it holds for everything the validator lets through.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Lessons learned</h2>
+        <p>String rewriting is a genuinely fun constraint to work under, but it re-scans the whole expression after
+        every single operation, so it doesn't scale well to long expressions. A real tokenizer feeding an AST would
+        be the sensible next version — this one was about seeing how far the string-only approach could go.</p>
+      </article>
+
+      <div class="repo-panel reveal">
+        <h2><span class="sec-prompt">#</span> Repository</h2>
+        <dl class="repo-list">
+          <div><dt>GitHub</dt><dd><a data-github-link href="#" target="_blank" rel="noopener">repository link</a></dd></div>
+          <div><dt>License</dt><dd data-license-placeholder>—</dd></div>
+          <div><dt>Language</dt><dd>Kotlin</dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ INJECT BASH STARTUP ============ -->
+  <section id="view-inject" class="view" data-view="inject" data-accent="green">
+    <div class="wrap">
+
+      <div class="proj-hero reveal">
+        <p class="eyebrow">$ ./injectBashStartup Main.kt</p>
+        <h1>injectBashStartup</h1>
+        <p class="proj-desc">A bash script that compiles a Kotlin or Java program, then staples a small bootstrap
+        script onto the front of the compiled output — so the result runs directly, like a binary.</p>
+        <div class="hero-meta">
+          <span class="lang-badge">Bash</span>
+          <a class="ghost-btn" data-github-link href="#" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> What it does</h2>
+        <p>It does what a <code>#!</code> shebang does for a Python or bash script, but for compiled JVM output.
+        Normally you'd run a compiled program with <code>java -jar thing.jar</code> or <code>kotlin Thing.kt</code>.
+        This wraps the compiled file so you can just run <code>./thing</code> instead — the interpreter name is
+        baked into the file itself.</p>
+        <p class="callout">The project's own README is upfront about this: <em>"Don't confuse it with a compiler."</em>
+        It still needs a JVM (and kotlinc or javac) present on the machine — this is a convenience wrapper, not a
+        standalone executable format.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Why I built it</h2>
+        <p>Typing <code>kotlin Program.kt</code> or <code>java -jar program.jar</code> every time got tedious, and
+        I wanted to know if I could make a compiled JVM file behave like a native binary using nothing but bash
+        and some careful byte counting.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> How it works</h2>
+        <p>The script checks the file extension you give it (<code>.kt</code>, <code>.java</code>, or an existing
+        <code>.jar</code>), compiles it with <code>kotlinc</code> or <code>javac</code> into a scratch directory —
+        preferring <code>/dev/shm</code> so the temp files live in memory — and then builds a bash header as a
+        heredoc string. That header is concatenated in front of the compiled bytecode with <code>cat</code>, and
+        the result is marked executable.</p>
+      </article>
+
+      <div class="demo-panel reveal" data-demo="inject">
+        <div class="demo-panel-head">
+          <span class="demo-panel-title">anatomy of the wrapped file</span>
+        </div>
+        <div class="inject-diagram" data-inject-diagram>
+          <div class="inject-block header-block">
+            <span class="inject-block-label">bash header</span>
+            <span class="inject-block-sub">#!/bin/bash — locates itself, extracts the payload, runs it</span>
+          </div>
+          <div class="inject-block payload-block">
+            <span class="inject-block-label">compiled bytecode</span>
+            <span class="inject-block-sub">the original .class / .jar contents, byte for byte</span>
+          </div>
+        </div>
+        <button type="button" class="ghost-btn" data-inject-action="explain">walk through what happens when you run it</button>
+        <ol class="inject-steps" data-inject-steps hidden></ol>
+        <p class="demo-note">There's no bash sandbox in this browser, so this panel is a diagram and walkthrough
+        of the real script's logic rather than something you can execute here.</p>
+      </div>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Interesting details</h2>
+        <p>When the wrapped file runs, it has to cut itself back apart — separating its own bash header from the
+        bytecode glued onto the end of it — using <code>sed</code> and <code>head</code> with a hardcoded line count.
+        If the java process modifies the file during execution (which happens in some jar self-write scenarios),
+        the script re-appends the header afterward by comparing a checksum of the payload before and after the run.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Challenges</h2>
+        <p>The whole thing is held together by exact line-count offsets — <code>sed -e '1,47d'</code>,
+        <code>head -48</code> — that have to match the header's real length precisely. Change one line in the
+        injected header and the split breaks, silently corrupting the binary portion. It works, but it's brittle
+        by construction, and the README's warning not to mistake it for a compiler is doing real work.</p>
+      </article>
+
+      <article class="prose reveal">
+        <h2><span class="sec-prompt">#</span> Lessons learned</h2>
+        <p>Hardcoded byte/line offsets are a fast way to get a shebang-style trick working, but a length-prefix or
+        an explicit boundary marker in the file would be a lot less fragile than counting lines by hand.</p>
+      </article>
+
+      <div class="repo-panel reveal">
+        <h2><span class="sec-prompt">#</span> Repository</h2>
+        <dl class="repo-list">
+          <div><dt>GitHub</dt><dd><a data-github-link href="#" target="_blank" rel="noopener">repository link</a></dd></div>
+          <div><dt>License</dt><dd data-license-placeholder>—</dd></div>
+          <div><dt>Language</dt><dd>Bash</dd></div>
+        </dl>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<nav class="dock" aria-label="Project navigation">
+  <button type="button" class="dock-item" data-nav="home" aria-current="page">
+    <span class="dock-glyph">~</span><span class="dock-label">home</span>
+  </button>
+  <button type="button" class="dock-item" data-nav="bf" data-accent="amber">
+    <span class="dock-glyph">[ ]</span><span class="dock-label">bfInterpreter</span>
+  </button>
+  <button type="button" class="dock-item" data-nav="brute" data-accent="coral">
+    <span class="dock-glyph">&gt;_</span><span class="dock-label">bruteForce</span>
+  </button>
+  <button type="button" class="dock-item" data-nav="expr" data-accent="cyan">
+    <span class="dock-glyph">∑</span><span class="dock-label">expression</span>
+  </button>
+  <button type="button" class="dock-item" data-nav="inject" data-accent="green">
+    <span class="dock-glyph">#!</span><span class="dock-label">injectBash</span>
+  </button>
+</nav>
+
+<script src="script.js"></script>
+</body>
+</html>

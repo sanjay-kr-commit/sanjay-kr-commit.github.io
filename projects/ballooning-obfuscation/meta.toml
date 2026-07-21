@@ -1,0 +1,8 @@
+id = ballooning-obfuscation
+name = Ballooning Obfuscation
+meta=python,obfuscation,ascii,sha256,toy-cipher
+icon = icon-bug
+color = var(--accent-purple)
+description=An ASCII obfuscation scheme that reverses and pads each byte before adding a positional keystream — one version with an embedded random salt, one keyed by a password through SHA-256.
+github=https://github.com/sanjay-kr-commit/Balooning-obfuscation
+date = 2026-06-24

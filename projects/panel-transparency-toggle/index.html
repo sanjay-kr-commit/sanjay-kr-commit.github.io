@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Transparency Toggle — walking the QML parent chain to find your own panel</title>
+<meta name="description" content="A Plasma 6 applet that makes its own panel translucent — and has to reverse-engineer its way to that panel first, since Plasma gives an applet no direct handle to the containment it lives in.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap topbar-inner">
+    <span class="crumb"><span class="plasma-dot"></span>org.kde.panel.transparency.toggle</span>
+    <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — PANEL TRANSPARENCY TOGGLE</div>
+    <h1>A widget whose whole job is <span class="g">its own panel</span> —<br>except nothing hands it a reference to one.</h1>
+    <p class="lede">A small Plasma 6 applet: drop it in your panel and it makes the panel translucent, at whatever opacity you want, with an option to hide the widget itself once you're done arranging it. The interesting part is what it has to do just to reach the panel it's sitting in — Plasma doesn't hand an applet its own containment, so this one goes looking for it.</p>
+
+    <div class="badges">
+      <span class="badge">QML</span>
+      <span class="badge">Plasma 6 Applet</span>
+      <span class="badge">Kirigami</span>
+      <span class="badge">GPL-2.0</span>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/sanjay-kr-commit/panelTransparencyToggleForPlasma6" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a class="btn ghost" href="#demo">try the config ↓</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">9</div><div class="l">commits, two bursts</div></div>
+      <div class="stat"><div class="n">14</div><div class="l">max recursion depth</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">startup attempts</div></div>
+      <div class="stat"><div class="n">GPL-2.0</div><div class="l">license</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what it is</div>
+        <h2>A rewrite, said plainly</h2>
+      </div>
+      <div class="prose">
+        <p>The README doesn't dress this up as something original: it's <a href="https://github.com/psifidotos/paneltransparencybutton" target="_blank" rel="noopener">Panel Transparency Button</a> by psifidotos, ported for Plasma 6. When Plasma 6 shipped, its applet API changed enough that older Plasma 5 widgets like the original stopped loading, and this is a from-scratch QML rewrite that keeps the same idea — a panel widget that toggles background transparency — while adapting to the new <code>declarativeappletscript</code> API and adding a few things the original didn't have: an opacity slider instead of a flat on/off, and a context menu alongside the button itself.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">why</div>
+        <h2>The applet you actually use every day breaking is motivating</h2>
+      </div>
+      <div class="prose">
+        <p>This is the kind of small utility that only gets written because its absence is annoying on your own desktop, every day, immediately after an upgrade. Plasma 6 didn't remove the ability to make panels translucent — it removed the specific old applet that did it. Porting a working QML rewrite is a smaller task than it sounds like from outside, and also a good way to actually learn the new applet API instead of reading about it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">contents/</div>
+        <h2>A metadata file and two small QML trees</h2>
+      </div>
+      <div class="filetree">
+        <div class="ft-row"><span class="ft-name">metadata.json</span><span class="ft-desc">plugin id, version, GPL-2.0 license, minimum Plasma API 6.0 — the manifest Plasma reads before it'll even try to load this</span></div>
+        <div class="ft-row"><span class="ft-name">ui/main.qml</span><span class="ft-desc">the applet itself: the button, the containment lookup, the startup retry timer, the contextual menu</span></div>
+        <div class="ft-row"><span class="ft-name">config/main.xml</span><span class="ft-desc">the three persisted settings — <code>hideInEditModeEnabled</code>, <code>isBackgroundDisabled</code>, <code>opacityOverride</code></span></div>
+        <div class="ft-row"><span class="ft-name">ui/configGeneral.qml</span><span class="ft-desc">the settings-panel form: two checkboxes and a slider, wired to the config keys above</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: the containment lookup -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">main.qml · lookForContainer</div>
+        <h2>An applet doesn't get a reference to its own panel</h2>
+        <p class="q">To disable a panel's background or change its opacity, this widget needs a handle to the <em>containment</em> — the panel itself, as a QML object — not just to itself. Plasma's public API doesn't hand that over directly to an applet.</p>
+      </div>
+      <div class="code-block" data-lang="qml"><pre><code>function lookForContainer( object , tries ) {
+    if ( tries == 0 || object == null ) return ;
+    if ( object.toString().indexOf("ContainmentItem_QML") &gt; -1 ) {
+        root.containmentItem = object ;
+    } else {
+        lookForContainer( object.parent , tries-1 ) ;
+    }
+}</code></pre></div>
+      <div class="prose">
+        <p>The workaround is to walk up the QML <code>parent</code> chain from the applet's own item, checking each ancestor's default <code>toString()</code> — which for a QML object includes its underlying C++ class name — for the substring <code>"ContainmentItem_QML"</code>. That string is an internal implementation detail of Plasma, not a documented API, which is exactly why it has to be found this way instead of asked for directly. The walk is capped at 14 hops so a lookup that will never succeed doesn't recurse forever.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: startup retry -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">main.qml · initializeAppletTimer</div>
+        <h2>The panel might not exist yet when the applet does</h2>
+      </div>
+      <div class="prose">
+        <p>At Plasma startup, this applet's QML can finish loading before its containment is fully constructed — so the very first <code>lookForContainer</code> call can legitimately fail through no fault of the walk itself. Rather than fail once and stay wrong until the user clicks something, a <code>Timer</code> retries every 1200ms, up to four extra attempts, logging which attempt actually found the containment. It's a small, honest acknowledgment that "run once at startup" isn't reliable in a plasmoid's actual load order, and the fix is patience rather than a cleverer lookup.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE DEMO -->
+  <section class="reveal" id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">try it</div>
+        <h2>The actual config screen, live</h2>
+        <p>These three controls are the real settings from <code>configGeneral.qml</code> and <code>main.xml</code> — hidden-in-edit-mode, background-disabled, and opacity — wired here to a mock panel instead of a real Plasma containment.</p>
+      </div>
+
+      <div class="demo-box">
+        <div class="kcm-form">
+          <div class="kcm-row">
+            <label><input type="checkbox" id="cfgHideEdit"> Hide outside edit mode</label>
+          </div>
+          <div class="kcm-row">
+            <label><input type="checkbox" id="cfgDisableBg" checked> Disable background</label>
+          </div>
+          <div class="kcm-row kcm-slider-row">
+            <label for="cfgOpacity">Opacity of panel</label>
+            <input type="range" id="cfgOpacity" min="0.1" max="1" step="0.01" value="1">
+            <span id="cfgOpacityVal">1.00</span>
+          </div>
+        </div>
+
+        <div class="desktop-mock">
+          <div class="desktop-wallpaper"></div>
+          <div class="mock-panel" id="mockPanel">
+            <div class="mock-panel-icons">
+              <span class="mp-icon">🐧</span><span class="mp-icon">📁</span><span class="mp-icon">🌐</span>
+            </div>
+            <div class="mock-panel-transparency-btn" id="mockTransBtn" title="transparency toggle (edit mode only)">⚙</div>
+            <div class="mock-panel-clock">10:42</div>
+          </div>
+        </div>
+        <div class="demo-caption">edit mode is simulated — toggle "hide outside edit mode" and move your cursor over the panel to see the widget's own visibility rule.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">git log</div>
+        <h2>A weekend port, then a real feature pass five months later</h2>
+      </div>
+      <div class="tl">
+        <div class="tl-item"><span class="tl-date">2023-11-21</span><span class="tl-text">Initial commit — the port itself, id and icon set for Plasma 6</span></div>
+        <div class="tl-item"><span class="tl-date">2023-11-22</span><span class="tl-text">Add retry attempts when looking for the containment and enabling transparency at startup</span></div>
+        <div class="tl-item"><span class="tl-date">2023-11-25</span><span class="tl-text">Adjust metadata for how Plasma 6 actually expects it</span></div>
+        <div class="tl-item"><span class="tl-date">2024-04-17</span><span class="tl-text">Opacity slider, a fix for a configuration bug, and the contextual menu — all in one day, five months later</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what's actually rough</div>
+        <h2>Where a private API bites back</h2>
+      </div>
+      <div class="lesson-grid">
+        <div class="lesson honest">
+          <div class="l-tag">◐ known fragility</div>
+          <p>Matching an internal class name in <code>toString()</code> is exactly the kind of thing a future Plasma release can quietly rename, at which point this applet stops finding its containment with no compile-time warning — it'll just silently fail to disable the background.</p>
+        </div>
+        <div class="lesson honest">
+          <div class="l-tag">◐ credited, not hidden</div>
+          <p>This project's value is the port and the Plasma-6-era additions (opacity slider, context menu) — not the original idea, which the README attributes to psifidotos's Plasma 5 applet up front.</p>
+        </div>
+        <div class="lesson win">
+          <div class="l-tag">✓ landed</div>
+          <p>The retry timer turned an intermittent "works on the second panel but not the first one loaded" bug into something that just quietly works within a couple seconds of login, every time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">if this gets picked back up</div>
+        <h2>What's next</h2>
+      </div>
+      <ul class="future-list">
+        <li>A more resilient containment lookup that doesn't depend on one specific internal class name string, if Plasma ever exposes a public way to do this.</li>
+        <li>Per-panel opacity, for anyone running more than one panel with different intentions for each.</li>
+        <li>Publishing to the KDE Store so it's installable without cloning the repo by hand.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>panelTransparencyToggleForPlasma6 · maintained by sanjay-kr-commit</div>
+    <div class="fmeta">
+      <a href="https://github.com/sanjay-kr-commit/panelTransparencyToggleForPlasma6" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a href="../../pages/home/index.html">back to the portfolio ↩</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

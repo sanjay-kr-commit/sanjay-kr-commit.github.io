@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kotlin DSL Tic-Tac-Toe — playing a board game like it's Jetpack Compose</title>
+<meta name="description" content="Tic-tac-toe written as a Kotlin DSL: infix extension functions, scoped builders, and a static rule-based bot — an art project in making game code read like a UI declaration.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap topbar-inner">
+    <span class="crumb"><span class="kt-dot"></span>board { gameCharacter { … } }</span>
+    <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — KOTLIN DSL TIC-TAC-TOE</div>
+    <h1>Tic-tac-toe, written like it's <span class="g">declaring a UI</span>.</h1>
+    <p class="lede">Same nine squares, same three-in-a-row rule — but the code around it is a small DSL: infix extension functions, scoped builder lambdas, custom exceptions instead of booleans. The README says it best: not optimized for playing, more of an art project, an attempt to make plain game logic read like Jetpack Compose.</p>
+
+    <div class="badges">
+      <span class="badge">Kotlin</span>
+      <span class="badge">extension functions</span>
+      <span class="badge">infix functions</span>
+      <span class="badge">JVM CLI</span>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/sanjay-kr-commit/tic-tac-toe-with-kotlin-dsl" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a class="btn ghost" href="#demo">play against the bot ↓</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">4</div><div class="l">commits, one day</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">kotlin files</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">custom exceptions</div></div>
+      <div class="stat"><div class="n">unlicensed</div><div class="l">no LICENSE file yet</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what it is, in the author's own words</div>
+        <h2>The README doesn't oversell it</h2>
+      </div>
+      <div class="readme-quote">
+        <p>"A fancy way of writing tic tac toe with kotlin dsl and extension function"</p>
+        <p class="readme-bg">"it not optimised for playing but more of an art project i just wanted to make a structured code like jetpack compose"</p>
+      </div>
+      <div class="prose">
+        <p>That's the whole brief. The board, the win check, the bot — none of it is trying to be clever as an algorithm. What's actually being explored is the <em>shape</em> of the code: can a two-player grid game read like a builder DSL, the way Compose turns UI trees into nested lambda calls? The answer here is yes, at the cost of a fair amount of ceremony for something this small — and that tradeoff is the point.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">architecture</div>
+        <h2>Seven files for one game of tic-tac-toe</h2>
+      </div>
+      <div class="filetree">
+        <div class="ft-row"><span class="ft-name">Board.kt</span><span class="ft-desc">the 3×3 array, plus the infix <code>mark</code> functions that are the whole point of the DSL</span></div>
+        <div class="ft-row"><span class="ft-name">Coordinates.kt</span><span class="ft-desc">a tiny scope type — <code>row</code>/<code>column</code> as <code>ScopedSpot</code> (First/Second/Third), so a coordinate reads as a word instead of a 0-indexed int</span></div>
+        <div class="ft-row"><span class="ft-name">GameCharacterScope.kt</span><span class="ft-desc">wraps X/O as properties in scope, and — in its companion object — hosts extension functions <em>on Board</em>: <code>gameStatus()</code>, <code>playing</code>, <code>result</code></span></div>
+        <div class="ft-row"><span class="ft-name">Bot.kt</span><span class="ft-desc">a static, rule-based <code>botSpot</code> — check every line for a win, then for a block, else pick at random</span></div>
+        <div class="ft-row"><span class="ft-name">InvalidSpotException.kt / SpotAlreadyOccupiedException.kt</span><span class="ft-desc">the DSL fails loud instead of returning a boolean when a move doesn't make sense</span></div>
+        <div class="ft-row"><span class="ft-name">Main.kt</span><span class="ft-desc">the whole game, expressed as nested builder lambdas</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: main DSL -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">Main.kt</div>
+        <h2>What the DSL actually buys you</h2>
+      </div>
+      <div class="code-block" data-lang="kotlin"><pre><code>fun main() : Unit = board {
+    gameCharacter {
+        player = X
+        bot = O
+        priority = X
+
+        playing { turn -&gt;
+            if (turn == bot) {
+                turn mark botSpot
+            } else turn mark {
+                row = readln().toInt().scopedSpot
+                column = readln().toInt().scopedSpot
+            }
+        }
+
+        println(result)
+    }
+}</code></pre></div>
+      <div class="prose">
+        <p><code>board { }</code> and <code>gameCharacter { }</code> are builder functions — each just invokes its lambda with a fresh receiver, the same pattern Compose uses for every composable. Inside, <code>X</code> and <code>O</code> aren't global constants; they only exist as properties of <code>GameCharacterScope</code>, so they're only in scope where a game character actually makes sense. And <code>turn mark botSpot</code> versus <code>turn mark { row = ...; column = ... }</code> are the same infix function with two different call shapes — one takes a raw index, the other takes a lambda that fills in a nested <code>Coordinates</code> scope one field at a time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION: cross-class extensions -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">GameCharacterScope.kt · companion object</div>
+        <h2>Extension functions living on the "wrong" class</h2>
+        <p class="q"><code>gameStatus()</code>, <code>playing</code>, and <code>result</code> are all extension functions on <strong>Board</strong> — but they're declared inside <strong>GameCharacterScope</strong>'s companion object, not Board's.</p>
+      </div>
+      <div class="prose">
+        <p>That placement is deliberate, not an accident of where the file happened to live: those functions need <code>GameCharacter.X</code>/<code>GameCharacter.O</code> in scope to read naturally, and putting them behind <code>GameCharacterScope.Companion</code> means they're only available once you've imported the DSL surface — <code>import GameCharacterScope.Companion.playing</code> — rather than being globally attached to every <code>Board</code> everywhere. It's using Kotlin's extension-function import scoping as a crude form of access control: the capability exists, but only where the DSL has been explicitly opted into.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHALLENGES: dead code -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">the recursive version that didn't make it</div>
+        <h2>A whole abandoned algorithm, left in as a comment</h2>
+      </div>
+      <div class="prose">
+        <p>The static <code>gameStatus()</code> that shipped is a flat <code>when</code> block checking all eight winning lines by hand. Directly above it in the same file, commented out, is a different approach entirely — a recursive version that tries to walk the board diagonally from each cell, checking three directions at once and propagating <code>Undetermined</code>/<code>Draw</code>/a winning character back up through the recursion.</p>
+      </div>
+      <div class="code-block dead" data-lang="kotlin"><pre><code>// dynamic checks
+//        fun Board.gameStatus(character : GameCharacter? = null , row : Int = -1 , column : Int = -1 ) : GameCharacter {
+//            character?.let { _ -&gt;
+//                if ( row &gt; 2 || column &gt; 2 ) return GameCharacter.Draw
+//                val absoluteIndex = ( column * 3 ) + row
+//                if ( board[absoluteIndex] != character ) return GameCharacter.Undetermined
+//                val recurse = gameStatus( character , row+1 , column )
+//                val recurse1 = gameStatus( character , row , column+1 )
+//                val recurse2 = gameStatus( character , row+1 , column+1 )
+//                return when {
+//                    recurse == character || recurse1 == character || recurse2 == character -&gt; character
+//                    ...
+//                }
+//            } ?: run { /* try both X and O from every cell */ }
+//        }</code></pre></div>
+      <div class="prose">
+        <p>It's left in rather than deleted — a record of trying the more "elegant" recursive idea first, running into how awkward it gets to reason about three simultaneous recursive branches and a nullable dual-purpose parameter, and shipping the flat, boring version that's actually easy to verify by reading it once.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE GRADLE WAR STORY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">the last commit of the day</div>
+        <h2>One line that tells you exactly how the afternoon went</h2>
+      </div>
+      <div class="commit-quote">"add a doLast Task to jar Task to add kotlin runtime files to jar after the jar has been compiled i thought why use library for such a simple thing how hard it would be it was hard"</div>
+      <div class="prose">
+        <p>Without a shading plugin, a plain Kotlin jar doesn't carry the Kotlin stdlib with it — so a build script step has to compile a throwaway file with <code>-include-runtime</code>, extract the runtime classes from <em>that</em>, and copy them into the real jar after it's built. It's a small, well-defined problem that looks like it should take ten minutes, right up until you're the one writing it by hand instead of enabling a plugin. The same exact problem shows up independently in this portfolio's <a href="../deflate-jar/index.html">Deflate-Jar</a> project's build script too — not copied between them, just the same rough edge in the Kotlin/Gradle toolchain, found twice.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE DEMO -->
+  <section class="reveal" id="demo">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">try it</div>
+        <h2>Play against the actual bot logic</h2>
+        <p>Ported directly from <code>Bot.kt</code>'s <code>botSpot</code>: check every line for a completable win, then for a block, else pick an open square at random. No minimax, no lookahead — exactly what the source does.</p>
+      </div>
+      <div class="demo-box">
+        <div class="board-demo" id="boardDemo"></div>
+        <div class="demo-status" id="demoStatus">your move — you're X</div>
+        <button class="btn ghost small" id="resetBtn">↺ new game</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUTURE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">if this gets picked back up</div>
+        <h2>What's next</h2>
+      </div>
+      <ul class="future-list">
+        <li>A minimax-backed bot as an alternative <code>botSpot</code> implementation, kept alongside the static one rather than replacing it — the static version is part of the point.</li>
+        <li>Reusing <code>Coordinates</code>/<code>ScopedSpot</code> for a board of a different size, to see how far the scoped-spot idea generalizes past 3×3.</li>
+        <li>A LICENSE file — the repo doesn't have one yet.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>tic-tac-toe-with-kotlin-dsl · maintained by sanjay-kr-commit</div>
+    <div class="fmeta">
+      <a href="https://github.com/sanjay-kr-commit/tic-tac-toe-with-kotlin-dsl" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a href="../../pages/home/index.html">back to the portfolio ↩</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

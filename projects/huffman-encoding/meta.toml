@@ -1,0 +1,8 @@
+id = huffman-encoding
+name = Huffman Encoding
+meta=kotlin,compose-desktop,compression,algorithms
+icon = icon-cpu
+color = var(--accent-green)
+description=A from-scratch Huffman compressor with a Compose Desktop shell: per-segment trees, a run-length trick for serializing the tree itself, and the byte-offset issue that comes with it.
+github=https://github.com/sanjay-kr-commit/huffman-encoding
+date = 2025-09-30
