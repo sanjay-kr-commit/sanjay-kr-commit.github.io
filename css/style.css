@@ -258,8 +258,8 @@ button {
   position: absolute;
   bottom: 72px;
   left: 20px;
-  width: 220px;
-  max-height: 280px;
+  width: 300px;
+  max-height: 420px;
   background: var(--glass-bg-strong);
   backdrop-filter: blur(var(--glass-blur-strong)) saturate(140%);
   -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(140%);
@@ -296,30 +296,47 @@ button {
 
 .launcher-list {
   /* this is the lazy/scrollable part — grows tall list without resizing the panel */
-  max-height: 220px;
+  max-height: 360px;
   overflow-y: auto;
-  padding: 6px 8px 8px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .launch-item {
   all: unset;
+  box-sizing: border-box;
   cursor: pointer;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: rgba(255, 255, 255, 0.04);
   border: 0.5px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 8px 10px;
-  transition: background var(--transition-fast);
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .launch-item:hover,
-.launch-item:focus-visible {
+.launch-item:focus-visible,
+.launch-item.is-active {
   background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.launch-item-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .launch-item svg {
@@ -328,16 +345,137 @@ button {
   flex-shrink: 0;
 }
 
+.launch-item-text {
+  min-width: 0; /* required for text-overflow to work inside a flex child */
+}
+
 .launch-item-name {
   margin: 0;
-  font-size: 11.5px;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .launch-item-meta {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 9.5px;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   LAUNCHER DETAIL — floating panel anchored beside the launcher,
+   fed by the same project object as the row currently hovered/focused
+   ============================================================ */
+.launcher-detail {
+  position: absolute;
+  bottom: 72px;
+  left: 332px; /* launcher-panel left (20px) + width (300px) + gap (12px) */
+  width: 260px;
+  max-height: 420px;
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(140%);
+  border: 0.5px solid var(--glass-border-strong);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  padding: 16px;
+  z-index: 5;
+  pointer-events: none;
+
+  transform: scale(0.94) translateX(-4px);
+  opacity: 0;
+  transition:
+    transform var(--transition-panel),
+    opacity var(--transition-panel);
+}
+
+.launcher-detail.visible {
+  opacity: 1;
+  transform: scale(1) translateX(0);
+  pointer-events: auto;
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.detail-icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.detail-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.detail-date {
+  margin: 2px 0 0;
+  font-size: 9.5px;
+  color: var(--text-faint);
+}
+
+.detail-description {
+  margin: 0 0 14px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.detail-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 10px;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.detail-github:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.detail-github svg {
+  width: 12px;
+  height: 12px;
+}
+
+@media (max-width: 900px) {
+  /* not enough horizontal room to float a second panel beside the
+     launcher without it running off-screen — suppress it here rather
+     than showing a clipped panel */
+  .launcher-detail {
+    display: none;
+  }
 }
 
 /* thin scrollbars matching the theme, no default browser chrome */

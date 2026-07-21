@@ -64,6 +64,31 @@
           <!-- populated by js/main.js from #projects-data -->
         </div>
       </div>
+
+      <!-- fed by whichever .launch-item is currently hovered/focused,
+           see updateDetail() in js/main.js -->
+      <div class="launcher-detail" id="launcher-detail" aria-hidden="true">
+        <div class="detail-head">
+          <span class="detail-icon">
+            <svg id="detail-icon-use"><use href="#icon-apps"></use></svg>
+          </span>
+          <div>
+            <p class="detail-name" id="detail-name">—</p>
+            <p class="detail-date" id="detail-date">—</p>
+          </div>
+        </div>
+        <p class="detail-description" id="detail-description"></p>
+        <a
+          class="detail-github"
+          id="detail-github"
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg><use href="#icon-share"></use></svg>
+          View on GitHub
+        </a>
+      </div>
     </div>
     <script src="js/main.js"></script>
   </body>

@@ -27,6 +27,12 @@
     launcherToggle: document.getElementById("launcher-toggle"),
     launcherPanel: document.getElementById("launcher-panel"),
     launcherList: document.getElementById("launcher-list"),
+    launcherDetail: document.getElementById("launcher-detail"),
+    detailIconUse: document.getElementById("detail-icon-use").querySelector("use"),
+    detailName: document.getElementById("detail-name"),
+    detailDate: document.getElementById("detail-date"),
+    detailDescription: document.getElementById("detail-description"),
+    detailGithub: document.getElementById("detail-github"),
     clickCatcher: document.getElementById("click-catcher"),
     clock: document.getElementById("clock"),
     shareButton: document.getElementById("share-btn"),
@@ -126,6 +132,45 @@
     return projects;
   }
 
+  /* Fills the floating side panel from one project object and shows it.
+     Called on hover/focus of a launch-item — see renderLauncherList(). */
+  function showDetail(project) {
+    els.detailIconUse.setAttribute("href", `#${project.icon}`);
+    els.detailIconUse.parentElement.style.color = project.color;
+    els.detailName.textContent = project.name;
+    els.detailDate.textContent = project.date || "";
+    els.detailDescription.textContent = project.description || "";
+    els.detailGithub.href = project.github || "#";
+    els.detailGithub.style.display = project.github ? "inline-flex" : "none";
+    els.launcherDetail.classList.add("visible");
+    els.launcherDetail.setAttribute("aria-hidden", "false");
+  }
+
+  function hideDetail() {
+    els.launcherDetail.classList.remove("visible");
+    els.launcherDetail.setAttribute("aria-hidden", "true");
+  }
+
+  // Hover-intent for the detail panel: leaving a launch-item doesn't hide
+  // it right away — the mouse needs time to travel across the gap into
+  // the panel itself. If it lands there, the pending hide is cancelled and
+  // the panel stays up until the mouse actually leaves the panel.
+  const DETAIL_HIDE_DELAY_MS = 500;
+  let detailHideTimer = null;
+
+  function scheduleHideDetail() {
+    clearTimeout(detailHideTimer);
+    detailHideTimer = setTimeout(() => {
+      detailHideTimer = null;
+      hideDetail();
+    }, DETAIL_HIDE_DELAY_MS);
+  }
+
+  function cancelHideDetail() {
+    clearTimeout(detailHideTimer);
+    detailHideTimer = null;
+  }
+
   function renderLauncherList(projects) {
     const fragment = document.createDocumentFragment();
 
@@ -134,12 +179,32 @@
       item.className = "launch-item";
       item.type = "button";
       item.innerHTML = `
-        <svg style="color:${project.color}"><use href="#${project.icon}"></use></svg>
-        <div>
+        <span class="launch-item-icon">
+          <svg style="color:${project.color}"><use href="#${project.icon}"></use></svg>
+        </span>
+        <div class="launch-item-text">
           <p class="launch-item-name">${project.name}</p>
           <p class="launch-item-meta">${project.meta}</p>
         </div>
       `;
+
+      // hover (mouse) and focus (keyboard) both drive the detail panel,
+      // so it works the same way whether you're tabbing or pointing
+      item.addEventListener("mouseenter", () => {
+        cancelHideDetail();
+        showDetail(project);
+      });
+      item.addEventListener("focus", () => {
+        cancelHideDetail();
+        showDetail(project);
+      });
+      item.addEventListener("mouseleave", () => {
+        if (document.activeElement !== item) scheduleHideDetail();
+      });
+      item.addEventListener("blur", () => {
+        if (!item.matches(":hover")) scheduleHideDetail();
+      });
+
       item.addEventListener("click", () => {
         els.navButtons.forEach((b) => b.classList.remove("active")); // launcher pages aren't in the top nav
         setPage(project.page, `~/projects/${project.id}`);
@@ -169,6 +234,8 @@
     launcherOpen = false;
     els.launcherPanel.classList.remove("visible");
     els.launcherToggle.setAttribute("aria-expanded", "false");
+    cancelHideDetail();
+    hideDetail();
     setTimeout(() => {
       els.launcherPanel.classList.remove("open");
       els.clickCatcher.classList.remove("open");
@@ -185,6 +252,14 @@
     });
 
     els.clickCatcher.addEventListener("click", closeLauncher);
+
+    // once the mouse reaches the panel it's committed to staying open;
+    // it only closes when the mouse leaves the panel itself
+    els.launcherDetail.addEventListener("mouseenter", cancelHideDetail);
+    els.launcherDetail.addEventListener("mouseleave", () => {
+      cancelHideDetail();
+      hideDetail();
+    });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && launcherOpen) closeLauncher();
