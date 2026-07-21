@@ -1,5 +1,8 @@
 id = dotfiles
-name = dotfiles
-meta = config
+name = Dotfiles
+meta=zsh,shell,dotfiles,tooling,automation
 icon = icon-terminal
 color = var(--accent-pink)
+description=A zsh setup that reconfigures itself: modules declare their own priority, dependencies and flags in comments, and a loader parses them. No config, a small framework.
+github=https://github.com/sanjay-kr-commit/dotfiles
+date = 2026-07-20

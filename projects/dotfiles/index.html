@@ -1,15 +1,240 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="../subpage.css" />
-  </head>
-  <body>
-    <p class="prompt">$ cat readme.md</p>
-    <p>My actual ricing setup, public and versioned.</p>
-    <p class="dim">
-      tmux + zsh config with custom powerline, i3/sway configs, neovim setup for
-      C and low-level work.
-    </p>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dotfiles — a shell that reconfigures itself</title>
+<meta name="description" content="A guided tour of a zsh dotfiles repo that treats configuration as a small framework: modules declare their own priority, dependencies and flags.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="pathbar">
+  <div class="pathbar-inner">
+    <span class="prompt">~</span>
+    <span class="stack" id="pathStack">$</span>
+    <span class="cursor"></span>
+    <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — DOTFILES</div>
+    <h1>Not a config folder.<br>A <em>shell that configures itself</em>.</h1>
+    <p class="lede">Ten modules, a loader that reads their own comments to decide what depends on what, and a boot script that will re-clone the whole thing from GitHub if it ever wakes up on a machine that's never seen it before. This is a tour of how it actually works.</p>
+
+    <div class="term" id="bootTerm">
+      <div class="term-chrome">
+        <div class="term-dot" style="background:#d1585c"></div>
+        <div class="term-dot" style="background:#e3a53c"></div>
+        <div class="term-dot" style="background:#7fb069"></div>
+        <div class="term-title">zsh — ~/dotfiles</div>
+      </div>
+      <div class="term-body" id="termBody"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. THE HANDSHAKE -->
+  <section data-path="dotfiles" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">$ cat ~/.zshrc</div>
+        <h2>One line in <code>.zshrc</code>. Everything else earns its place.</h2>
+        <p class="q">Why is your shell built this way?</p>
+        <p>Because a `.zshrc` that's five hundred lines of copy-pasted Stack Overflow answers is unmaintainable, and a `.zshrc` that's one line pointing at a real program is not. The only thing that gets sourced directly is <code>configureshell</code> — everything downstream of it is code, not config.</p>
+      </div>
+      <div class="prose">
+        <p>The first thing <code>configureshell</code> does is refuse to run anywhere it shouldn't. It checks the active process against <code>zsh</code> and the parent shell against a small known-list, and if either check fails, it prints why and bails — no silent partial setup on a bash box.</p>
+        <p>Then it builds something most dotfiles repos never need: <strong>its own path resolver</strong>. Every downstream script calls <code>processRelativePath</code> instead of <code>cd</code>, which pushes onto a hand-maintained stack (<code>_path_stack</code>), resolves <code>..</code> segments with a character-by-character loop, calls the target script, and pops the stack back on return. No script ever changes the shell's actual working directory just to find its neighbours.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. BOOT SEQUENCE -->
+  <section data-path="dotfiles/runtime" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">~/dotfiles/runtime</div>
+        <h2>Two boots: the first one, and every one after</h2>
+        <p>Everything in <code>runtime/</code> is the engine. Adding a feature never means touching this folder — it means dropping a new file in <code>module/</code>.</p>
+      </div>
+
+      <div class="boot">
+        <div class="boot-row branch">
+          <div class="tag">--init</div>
+          <div class="body">First shell ever on this machine. <code>initscript</code> routes to <code>setup</code>, which checks whether <code>.zshrc</code> already sources the dotfiles. If not, it works out the repo's own <code>git remote origin</code> and writes a small conditional block back into <code>.zshrc</code>: <em>if this directory exists, source it — otherwise clone it from origin, then source it.</em></div>
+        </div>
+        <div class="boot-arrow">↓ every later shell</div>
+        <div class="boot-row">
+          <div class="tag">initialize</div>
+          <div class="body">Calls <code>flagFunctions</code> (exposes <code>:flag</code>), then <code>moduleFunction</code> (exposes <code>:module</code>), then hands off to <code>moduleloader</code> — always in that order, so the toggle commands exist before any module that might want to call them.</div>
+        </div>
+      </div>
+
+      <p class="prose" style="margin-top:22px;">The payoff of the self-cloning stanza: hand a fresh Arch install the git URL once, and the next shell you open finishes the rest by itself.</p>
+    </div>
+  </section>
+
+  <!-- 3. DIRECTORY TREE -->
+  <section data-path="dotfiles" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">$ tree ~/dotfiles</div>
+        <h2>Four folders, one job each</h2>
+        <p>Click a folder to look inside.</p>
+      </div>
+
+      <div class="tree" id="tree"></div>
+    </div>
+  </section>
+
+  <!-- 4. MODULE SYSTEM / METADATA -->
+  <section data-path="dotfiles/module" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">~/dotfiles/module</div>
+        <h2>Modules describe themselves. The loader just reads.</h2>
+        <p class="q">How does a plain shell script declare a dependency?</p>
+        <p>In a comment. <code>moduleloader</code> greps every enabled module for three markers before it sources anything:</p>
+      </div>
+
+      <div class="boot">
+        <div class="boot-row">
+          <div class="tag">p-&gt;</div>
+          <div class="body">Load priority. Lower runs first. <code>tmux_terminal</code> is <code>-100</code> because a fresh terminal should attach to tmux before anything else happens. <code>persistentAlias</code> is <code>1002</code> — it wants every other module's aliases already defined before it starts intercepting <code>alias</code> calls.</div>
+        </div>
+        <div class="boot-row">
+          <div class="tag">d-&gt;</div>
+          <div class="body">Dependencies. <code>resolveDependency</code> recurses through these before sourcing the module itself, and skips anything already loaded so two modules requesting the same dependency don't double-source it.</div>
+        </div>
+        <div class="boot-row">
+          <div class="tag">f-&gt;</div>
+          <div class="body">Flags the module wants registered dynamically — <code>persistentAlias</code> declares <code>USE_RAM_FOR_TEMP_ALIAS_FILE</code> this way, so <code>:flag</code> can toggle it without <code>runtime/LIST_OF_FLAGS</code> needing to know about every module in advance.</div>
+        </div>
+      </div>
+
+      <p class="prose" style="margin-top:22px;">The real load order comes from an awk script that anchors named priorities in place and slots the unnamed modules into the gaps between them. Here's the current result:</p>
+
+      <div class="ladder" id="ladder" style="margin-top:16px;"></div>
+      <button class="btn ladder-btn" id="resolveBtn">resolve load order</button>
+    </div>
+  </section>
+
+  <!-- 5. MODULE TOGGLE -->
+  <section data-path="dotfiles/config/LOAD_MODULE" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">$ :module</div>
+        <h2>An fzf picker for turning capabilities on and off</h2>
+        <p><code>:module</code> pipes every module file through an ✓ / ✗ list into fzf; picking a row flips it and rewrites <code>config/LOAD_MODULE</code>. This is that list, rebuilt from what's actually enabled on this machine right now — click a row to see it toggle.</p>
+      </div>
+
+      <div class="modlist" id="modlist"></div>
+      <div class="modlist-caption">10 enabled · 3 available but off — a restart is required for a real toggle to take effect</div>
+    </div>
+  </section>
+
+  <!-- 6. ALIASES -->
+  <section data-path="dotfiles/config/public/persistentAlias" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">~/dotfiles/config/public/persistentAlias/STORED_ALIASES</div>
+        <h2>An <code>alias</code> that survives a restart, on purpose</h2>
+        <p>This module overrides the <code>alias</code> builtin. Calling <code>alias --save name=cmd</code> doesn't just define it for the session — it rewrites <code>STORED_ALIASES</code> line-by-line, replacing an existing entry in place if one exists rather than appending a duplicate. <code>unalias --delete</code> does the same surgery in reverse.</p>
+      </div>
+
+      <input class="alias-search" id="aliasSearch" type="text" placeholder="filter aliases…">
+      <div class="alias-grid" id="aliasGrid"></div>
+      <div class="alias-count" id="aliasCount"></div>
+    </div>
+  </section>
+
+  <!-- 7. GITPASS -->
+  <section data-path="dotfiles/module/gitPass" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">~/dotfiles/module/gitPass</div>
+        <h2>One <code>git</code> command, several identities</h2>
+        <p class="q">How do you avoid setting <code>user.email</code> by hand in every clone?</p>
+      </div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="dot-col"><div class="dot"></div><div class="line"></div></div>
+          <div>
+            <div class="flabel">01</div>
+            <div class="ftext"><code>git</code> is redefined as a function. It reads the current repo's <code>remote get-url origin</code> and pulls the host-relative username out of the URL.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="dot-col"><div class="dot"></div><div class="line"></div></div>
+          <div>
+            <div class="flabel">02</div>
+            <div class="ftext">That username is looked up in a private, gitignored <code>userconfigs</code> file. Found → the matching email is set as <code>user.name</code> / <code>user.email</code> for this call only. Not found → falls back to whatever <code>~/.gitconfig</code> already says.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="dot-col"><div class="dot"></div></div>
+          <div>
+            <div class="flabel">03</div>
+            <div class="ftext">The real command runs with <code>GIT_ASKPASS</code> pointed back at the <em>same script</em>, which detects it's being invoked as an askpass and answers the username / password prompt itself from that same private file — so a push never stops to ask.</div>
+          </div>
+        </div>
+      </div>
+      <p class="prose" style="margin-top:8px;">No secret ever sits in the visible dotfiles — <code>config/private/</code> is gitignored and populated per-machine with <code>:addGitUser</code>.</p>
+    </div>
+  </section>
+
+  <!-- 8. SUDO -->
+  <section data-path="dotfiles/module/sudo_systemd_ask_pass" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">~/dotfiles/module/sudo_systemd_ask_pass</div>
+        <h2>A clearer prompt for a two-line wrapper</h2>
+        <p class="prose">Same self-referential-askpass trick as <code>gitPass</code>, applied to <code>sudo</code> and <code>sudoedit</code>: both are redefined to route through <code>SUDO_ASKPASS</code>, which calls back into the script to invoke <code>systemd-ask-password</code> with a message that actually says <em>"sudo password"</em> instead of the generic systemd string — and the wrapper captures and returns the real exit code, so a failed <code>sudo</code> still fails the script that called it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. ROADMAP -->
+  <section data-path="dotfiles/TODO" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">$ cat TODO</div>
+        <h2>What's shipped, what's still just a line in a text file</h2>
+      </div>
+      <div class="roadmap" id="roadmap"></div>
+    </div>
+  </section>
+
+  <!-- 10. TIMELINE -->
+  <section data-path="dotfiles" class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-path">$ git log --reverse</div>
+        <h2>67 commits, four months, one author</h2>
+        <p>From <code>"it works for now"</code> on the first commit to a dynamic flag registration system, without ever settling.</p>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>dotfiles · maintained by sanjay-kr-commit</div>
+    <div class="fmeta">
+      <a href="https://github.com/sanjay-kr-commit/dotfiles" target="_blank" rel="noopener">source on GitHub ↗</a>
+      <a href="../../pages/home/index.html">back to the portfolio ↩</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
 </html>

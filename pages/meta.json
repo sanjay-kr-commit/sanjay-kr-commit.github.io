@@ -1,20 +1,68 @@
 [
    {
+      "text" : "home",
+      "data-title" : "~/home",
+      "focus-class" : " active",
+      "data-page" : "pages/home/index.html"
+   },
+   {
       "text" : "about",
       "data-title" : "~/about",
-      "focus-class" : " active",
+      "focus-class" : "",
       "data-page" : "pages/about/index.html"
    },
    {
-      "text" : "chiptune",
-      "data-title" : "~/chiptune",
+      "text" : "philosophy",
+      "data-title" : "~/philosophy",
       "focus-class" : "",
-      "data-page" : "pages/chiptune/index.html"
+      "data-page" : "pages/philosophy/index.html"
    },
    {
-      "text" : "contact",
-      "data-title" : "~/contact",
+      "text" : "workspace",
+      "data-title" : "~/workspace",
       "focus-class" : "",
-      "data-page" : "pages/contact/index.html"
+      "data-page" : "pages/workspace/index.html"
+   },
+   {
+      "text" : "workflow",
+      "data-title" : "~/workflow",
+      "focus-class" : "",
+      "data-page" : "pages/workflow/index.html"
+   },
+   {
+      "text" : "opensource",
+      "data-title" : "~/opensource",
+      "focus-class" : "",
+      "data-page" : "pages/opensource/index.html"
+   },
+   {
+      "text" : "cp",
+      "data-title" : "~/cp",
+      "focus-class" : "",
+      "data-page" : "pages/cp/index.html"
+   },
+   {
+      "text" : "timeline",
+      "data-title" : "~/timeline",
+      "focus-class" : "",
+      "data-page" : "pages/timeline/index.html"
+   },
+   {
+      "text" : "skills",
+      "data-title" : "~/skills",
+      "focus-class" : "",
+      "data-page" : "pages/skills/index.html"
+   },
+   {
+      "text" : "resume",
+      "data-title" : "~/resume",
+      "focus-class" : "",
+      "data-page" : "pages/resume/index.html"
+   },
+   {
+      "text" : "contacts",
+      "data-title" : "~/contacts",
+      "focus-class" : "",
+      "data-page" : "pages/contacts/index.html"
    }
 ]

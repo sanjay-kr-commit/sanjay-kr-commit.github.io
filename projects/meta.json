@@ -1,34 +1,24 @@
 [
   {
-     "id" : "synth",
-     "name" : "chip-synth",
-     "meta" : "Rust",
-     "icon" : "icon-music",
-     "color" : "var(--accent-coral)",
-     "page" : "projects/chip-synth/index.html"
-  },
-  {
      "id" : "dotfiles",
-     "name" : "dotfiles",
-     "meta" : "config",
+     "name" : "Dotfiles",
+     "meta" : "zsh,shell,dotfiles,tooling,automation",
      "icon" : "icon-terminal",
      "color" : "var(--accent-pink)",
+     "description" : "A zsh setup that reconfigures itself: modules declare their own priority, dependencies and flags in comments, and a loader parses them. No config, a small framework.",
+     "github" : "https://github.com/sanjay-kr-commit/dotfiles",
+     "date" : "2026-07-20",
      "page" : "projects/dotfiles/index.html"
   },
   {
-     "id" : "crawler",
-     "name" : "mini-crawler",
-     "meta" : "C++",
-     "icon" : "icon-bug",
-     "color" : "var(--accent-lime)",
-     "page" : "projects/mini-crawler/index.html"
-  },
-  {
-     "id" : "kernel",
-     "name" : "os-kernel",
-     "meta" : "C + asm",
-     "icon" : "icon-cpu",
-     "color" : "var(--accent-blue)",
-     "page" : "projects/os-kernel/index.html"
+     "id" : "tanoshi-multiplatform",
+     "name" : "Tanoshi Multiplatform",
+     "meta" : "kotlin,compose-multiplatform,android,desktop,plugin-architecture",
+     "icon" : "icon-music",
+     "color" : "var(--accent-coral)",
+     "description" : "A Kotlin Multiplatform anime/manga reader where the desktop app reimplements Android's own Activity lifecycle from scratch, and extensions are sandboxed plugins with off-by-default permissions.",
+     "github" : "https://github.com/sanjay-kr-commit/Tanoshi-Multiplatform",
+     "date" : "2025-01-26",
+     "page" : "projects/tanoshi/index.html"
   }
 ]

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Source</title>
+    <meta
+      name="description"
+      content="My journey from using open source software to contributing back to it."
+    />
+    <link rel="stylesheet" href="../../assets/subpage.css" />
+  </head>
+  <body>
+    <header>
+      <p>
+        <span class="prompt">visitor@sanjay:~$</span>
+        <span class="dim">git log --author="Sanjay"</span>
+      </p>
+      <h1>Open Source</h1>
+      <p class="dim">From using software to understanding and improving it.</p>
+    </header>
+
+    <main>
+      <article>
+        <h2>Why I Contribute</h2>
+
+        <p>
+          Linux encouraged me to look beneath the surface of the tools I relied
+          on every day. Customizing KDE Plasma, experimenting with Flatpak
+          packages, and building developer tooling gradually changed how I
+          approached software. Instead of asking whether a feature existed, I
+          began asking why it behaved the way it did.
+        </p>
+
+        <p>
+          That curiosity eventually led me to reading source code, reproducing
+          issues, building projects locally, and submitting fixes. Open source
+          became an extension of learning rather than a separate activity.
+        </p>
+
+        <blockquote>
+          <p>
+            Using software teaches you how it behaves. Contributing teaches you
+            why it behaves that way.
+          </p>
+        </blockquote>
+      </article>
+
+      <article>
+        <h2>From User to Contributor</h2>
+
+        <pre><code>User
+ │
+ ▼
+Power User
+ │
+ ▼
+Reads Source
+ │
+ ▼
+Reproduces Bugs
+ │
+ ▼
+Finds Root Cause
+ │
+ ▼
+Implements Fix
+ │
+ ▼
+Code Review
+ │
+ ▼
+Contribution
+</code></pre>
+
+        <p>
+          This progression reflects how I now approach unfamiliar codebases.
+          Rather than being discouraged by their size, I reduce the problem
+          until I understand the specific part responsible for the behaviour I'm
+          investigating.
+        </p>
+      </article>
+
+      <article>
+        <h2>Case Study: KDE Plasma</h2>
+
+        <p>
+          One of my most rewarding experiences involved contributing to the KDE
+          Plasma ecosystem. What began as investigating unexpected desktop
+          behaviour became an exercise in understanding KWin, desktop effects,
+          rendering paths, and the interaction between different layers of the
+          desktop environment.
+        </p>
+
+        <p>
+          The process involved reproducing the issue consistently, tracing
+          execution through the relevant source files, validating assumptions,
+          proposing a focused change, and refining the implementation through
+          review. The technical outcome mattered, but the larger lesson was
+          learning how experienced maintainers reason about complex systems.
+        </p>
+      </article>
+
+      <article>
+        <h2>Case Study: Flatpak</h2>
+
+        <p>
+          Working with Flatpak introduced a different perspective. Instead of
+          desktop effects, the focus shifted to packaging, manifests, dependency
+          management, and reproducible builds. It reinforced the importance of
+          understanding the software distribution pipeline rather than only the
+          application itself.
+        </p>
+
+        <p>
+          Contributing in this space highlighted how small configuration changes
+          can influence developer and user experience across multiple platforms.
+        </p>
+      </article>
+
+      <article>
+        <h2>How I Investigate Bugs</h2>
+
+        <ol>
+          <li>Reproduce the issue reliably.</li>
+          <li>Read documentation and existing discussions.</li>
+          <li>Locate the relevant source code.</li>
+          <li>Reduce the problem to a minimal case.</li>
+          <li>Validate the root cause.</li>
+          <li>Implement the smallest practical fix.</li>
+          <li>Test the behaviour.</li>
+          <li>Respond to review and iterate.</li>
+        </ol>
+
+        <p>
+          This process has influenced my own repositories. I now write code with
+          future maintenance, debugging, and collaboration in mind because I
+          know someone else may one day need to understand it.
+        </p>
+      </article>
+
+      <article>
+        <h2>What Open Source Changed</h2>
+
+        <ul>
+          <li>Made reading unfamiliar codebases less intimidating.</li>
+          <li>Improved debugging discipline.</li>
+          <li>Strengthened communication through code review.</li>
+          <li>
+            Encouraged smaller, focused changes instead of broad rewrites.
+          </li>
+          <li>Reinforced the value of documentation and reproducibility.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Looking Ahead</h2>
+
+        <p>
+          I intend to continue contributing to the projects I use every day,
+          particularly within the Linux desktop ecosystem and developer tooling.
+          Each contribution is an opportunity to learn from experienced
+          maintainers while helping improve software that benefits a wider
+          community.
+        </p>
+      </article>
+
+      <footer>
+        <p>
+          <span class="prompt">visitor@sanjay:~$</span>
+          <span class="dim">continue exploring…</span>
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

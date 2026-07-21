@@ -1,0 +1,8 @@
+id = tanoshi-multiplatform
+name = Tanoshi Multiplatform
+meta=kotlin,compose-multiplatform,android,desktop,plugin-architecture
+icon = icon-music
+color = var(--accent-coral)
+description=A Kotlin Multiplatform anime/manga reader where the desktop app reimplements Android's own Activity lifecycle from scratch, and extensions are sandboxed plugins with off-by-default permissions.
+github=https://github.com/sanjay-kr-commit/Tanoshi-Multiplatform
+date = 2025-01-26

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanoshi — a Kotlin Multiplatform reader that reimplements Android on the desktop</title>
+<meta name="description" content="How Tanoshi shares 62% of its code between Android and desktop, reimplements Android's own Activity lifecycle from scratch on desktop, and sandboxes plugins behind off-by-default permissions.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="mesh"><div class="b1"></div><div class="b2"></div><div class="b3"></div></div>
+
+<nav class="platform-pill" id="platformPill">
+  <button data-p="shared" class="active"><span class="dot"></span>shared</button>
+  <button data-p="android"><span class="dot"></span>android</button>
+  <button data-p="desktop"><span class="dot"></span>desktop</button>
+  <a class="home-link" href="../../pages/home/index.html">↩ portfolio</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PROJECT — TANOSHI MULTIPLATFORM</div>
+    <h1>One codebase.<br>Two apps that <span class="g">don't know</span> they're different.</h1>
+    <p class="lede">Tanoshi is a Kotlin Multiplatform anime/manga reader with a plugin system for sources. The interesting part isn't that it runs on Android and desktop — it's that the desktop build reimplements Android's own Activity lifecycle by hand so the same mental model works on both.</p>
+
+    <div class="stat-row">
+      <div class="stat"><div class="n">115</div><div class="l">commits</div></div>
+      <div class="stat"><div class="n">13</div><div class="l">months, one author</div></div>
+      <div class="stat"><div class="n">62%</div><div class="l">code shared</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">gradle modules</div></div>
+    </div>
+
+    <div class="mockup reveal" id="mockup">
+      <div class="mockup-chrome">
+        <div class="mockup-badges">
+          <span class="badge android"><span class="dot"></span>Android · minSdk 24</span>
+          <span class="badge desktop"><span class="dot"></span>Desktop · JVM</span>
+        </div>
+        <span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-mute);">Compose Multiplatform 1.6.11 · Kotlin 2.0.20</span>
+      </div>
+      <div class="grid-demo" id="gridDemo"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- WHY MVVM -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">Commit #3 — Dec 29, 2023</div>
+        <h2>The decision that shaped everything after it</h2>
+        <p class="q">How do you maintain a Kotlin Multiplatform app for over a year?</p>
+      </div>
+      <div class="prose">
+        <p>Three days into the project, the architecture got picked and never really changed again: <strong>Android is naturally MVVM</strong>, so if desktop is going to share logic with it, desktop has to be MVVM-compatible too — even though desktop has no such convention on its own.</p>
+      </div>
+      <div class="commit-quote">"...because android applications are Model View View Model so to retain data on refresh while keeping logic shared we have to make desktop app Model View View Model compatible, common folder holds common file shared among different platform with platform specific logic"</div>
+      <div class="prose">
+        <p>That single early call is why <code>ViewModel</code>, <code>SharedApplicationData</code>, and the extension system all exist as <code>expect</code> declarations in <code>commonMain</code> with separate <code>.android.kt</code> and <code>.desktop.kt</code> actuals — not because Kotlin requires it, but because the shape of an Android app was chosen as the shape of the whole app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPECT/ACTUAL EXPLORER -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">commonMain / androidMain / desktopMain</div>
+        <h2>Same declaration, two platforms answer differently</h2>
+        <p>Six pairs of files across the codebase follow this pattern. Pick one:</p>
+      </div>
+
+      <div class="ea-tabs" id="eaTabs"></div>
+      <div class="ea-panels" id="eaPanels"></div>
+    </div>
+  </section>
+
+  <!-- WINDOW STACK SIGNATURE DEMO -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">desktop/util/WindowStack.kt</div>
+        <h2>Desktop doesn't have Activities. So it built its own.</h2>
+        <p>Android gives you <code>onCreate</code> / <code>onPause</code> / <code>onResume</code> / <code>onDestroy</code> and a back stack for free. The JVM desktop target gives you a window and nothing else — so <code>WindowStack</code> reimplements the Android activity model as a plain <code>ArrayList</code>, crossfading between entries with <code>AnimatedVisibility</code>. This is that stack, live.</p>
+      </div>
+
+      <div class="stack-demo">
+        <div class="stage" id="stage"></div>
+        <div class="stack-controls">
+          <button class="btn" id="pushBtn">windowStack.add( DynamicActivity() )</button>
+          <button class="btn ghost" id="popBtn">windowStack.pop()</button>
+          <div class="lifecycle-log" id="lifecycleLog"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXTENSION ANATOMY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">extension/ · a separate, testable gradle module</div>
+        <h2>A plugin is a jar with a manifest and some annotations</h2>
+        <p class="q">How does a third-party source become a browsable tab?</p>
+        <p>The real <code>Gogoanime</code> extension, annotated. Click a tag to see what it does.</p>
+      </div>
+
+      <div class="anatomy">
+        <div class="anno-list" id="annoList"></div>
+        <div class="code-block" id="annoCode"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERMISSIONS -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">SharedDependencies · loadExtensionPermission</div>
+        <h2>Every extension capability ships off by default</h2>
+        <p>An extension doesn't get a logger, a toast function, or the ability to open a full-screen composable just by asking. Each capability is a persisted, per-extension, per-namespace preference — the first time it's seen, it's written as <code>false</code>. Flip one below the way the real settings screen does, and the extension is reloaded with the new grant.</p>
+      </div>
+
+      <div class="perm-list" id="permList"></div>
+      <div class="perm-toast" id="permToast"></div>
+    </div>
+  </section>
+
+  <!-- SHARED CODE STATS -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">cloc, roughly</div>
+        <h2>Where the 62% actually lives</h2>
+      </div>
+      <div class="glass-card">
+        <div class="locbars" id="locBars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DB -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">common/db/DB.kt</div>
+        <h2>A version number, an H2 file, and an honest limitation</h2>
+      </div>
+      <div class="prose">
+        <p><code>DB</code> wraps a per-database H2 file through the Exposed framework with a single <code>DBINFO</code> table holding a version integer. On first run it calls <code>onCreate</code>. On every run after, it compares the stored version to the code's declared version — and if they don't match, it <strong>deletes every row in DBINFO and calls <code>onVersionChange</code></strong> rather than running a migration path.</p>
+        <p>That's blunt by design at this stage of the project: version bumps are a signal to the app, not yet a scripted migration. <code>Library.kt</code> and <code>Preferences.kt</code> both build on this same base class.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">git log --reverse</div>
+        <h2>Thirteen months, in three bursts</h2>
+      </div>
+      <div class="tl" id="tl"></div>
+    </div>
+  </section>
+
+  <!-- LESSONS / HONESTY -->
+  <section class="reveal">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">what actually shipped, what's still a stub</div>
+        <h2>Not everything here is finished, and that's on the page too</h2>
+      </div>
+      <div class="lesson-grid">
+        <div class="lesson win">
+          <div class="l-tag">✓ Landed</div>
+          <p><strong>BackLambdaStack</strong> is a hand-rolled singly-linked stack instead of a <code>Deque</code> — on purpose, per the code's own comment, so a pushed lambda can report back whether it should be kept or removed after it runs. A small structure, built because the standard one couldn't express the return contract needed.</p>
+        </div>
+        <div class="lesson honest">
+          <div class="l-tag">◐ Started, not finished</div>
+          <p><strong>restrictedClasses</strong> declares a set of classes extensions shouldn't be able to touch (<code>java.io.File</code> is the only entry so far) — but nothing in the loader checks against it yet. It's a sandboxing feature that exists as a declaration and not yet as an enforcement path.</p>
+        </div>
+        <div class="lesson honest">
+          <div class="l-tag">◐ Started, not finished</div>
+          <p>The real <strong>Gogoanime</strong> extension can search and list "Popular" titles, but <code>fetchDetail</code>, <code>fetchPlayableContentList</code>, and <code>fetchPlayableMedia</code> are still <code>TODO("Not yet implemented")</code>. The provider is wired into the extension system before it can actually play anything.</p>
+        </div>
+        <div class="lesson win">
+          <div class="l-tag">✓ Landed</div>
+          <p>The September 2024 rewrite touched the extension manager and loader on <strong>both</strong> platforms in the same week, moved dependency versions out of the build script into <code>libs.versions.toml</code>, and migrated the whole project to Kotlin 2 — a rare stretch where nothing was half-done afterward.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fwrap">
+      <div>
+        <h3>Tanoshi Multiplatform</h3>
+        <p>maintained by sanjay-kr-commit · Compose Multiplatform, Android + Desktop</p>
+      </div>
+      <div class="flinks">
+        <a href="https://github.com/sanjay-kr-commit/Tanoshi-Multiplatform" target="_blank" rel="noopener">source ↗</a>
+        <a href="../../pages/home/index.html">portfolio ↩</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
