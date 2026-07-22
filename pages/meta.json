@@ -2,7 +2,7 @@
    {
       "text" : "home",
       "data-title" : "~/home",
-      "focus-class" : " active",
+      "focus-class" : "",
       "data-page" : "pages/home/index.html"
    },
    {
@@ -64,5 +64,11 @@
       "data-title" : "~/contacts",
       "focus-class" : "",
       "data-page" : "pages/contacts/index.html"
+   },
+   {
+      "text" : "konsole",
+      "data-title" : "~/konsole",
+      "focus-class" : " active",
+      "data-page" : "pages/konsole/index.html"
    }
 ]

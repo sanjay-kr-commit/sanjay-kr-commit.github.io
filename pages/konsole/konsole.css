@@ -1,0 +1,8 @@
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font: inherit;
+}
