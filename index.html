@@ -33,16 +33,10 @@
               </svg>
             </button>
           </div>
-          <!-- loading="lazy" + on-demand src assignment keeps this resource-light:
-           nothing loads until a page is actually requested -->
-          <iframe
-            id="screen-frame"
-            class="screen-frame"
-            title="content"
-            loading="eager"
-            allowtransparency="true"
-          >
-          </iframe>
+          <!-- Hot-cache host: JS creates one <iframe> per visited page here
+               (up to a fixed cache size) and toggles which one is visible.
+               Nothing renders until a page is actually requested. -->
+          <div id="screen-frames" class="screen-frames"></div>
         </div>
       </div>
 

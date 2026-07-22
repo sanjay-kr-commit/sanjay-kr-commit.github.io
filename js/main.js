@@ -21,14 +21,16 @@
 
   const els = {
     window: document.getElementById("terminal-window"),
-    frame: document.getElementById("screen-frame"),
+    frames: document.getElementById("screen-frames"),
     title: document.getElementById("window-title"),
     navButtons: document.querySelectorAll(".nav-btn"),
     launcherToggle: document.getElementById("launcher-toggle"),
     launcherPanel: document.getElementById("launcher-panel"),
     launcherList: document.getElementById("launcher-list"),
     launcherDetail: document.getElementById("launcher-detail"),
-    detailIconUse: document.getElementById("detail-icon-use").querySelector("use"),
+    detailIconUse: document
+      .getElementById("detail-icon-use")
+      .querySelector("use"),
     detailName: document.getElementById("detail-name"),
     detailDate: document.getElementById("detail-date"),
     detailDescription: document.getElementById("detail-description"),
@@ -67,16 +69,75 @@
      header nav and the launcher call this same function —
      that's what keeps the two UIs decoupled but consistent.
 
-     Lazy by design: the iframe's src is only ever set to the
-     page actually requested. Nothing preloads in the background.
+     Hot-cache strategy: every page that's opened gets its own
+     <iframe>, created once and kept alive in the DOM (not
+     reloaded) so flipping back to a recently-visited page is
+     instant and keeps its scroll/JS state. Only one iframe is
+     ever visible at a time — the rest just sit hidden.
+
+     Up to FRAME_CACHE_SIZE iframes are kept "hot" like this. Past
+     that, the least-recently-used one gets torn down (removed
+     from the DOM) to make room for the new page. The site looks
+     and behaves exactly as before; this only changes what happens
+     behind the scenes.
      ---------------------------------------------------------- */
+  const FRAME_CACHE_SIZE = 5;
+
+  const frameCache = new Map(); // pagePath -> iframe element
+  let frameOrder = []; // pagePath list, oldest first (LRU order)
+  let activeFrame = null;
+
+  function createFrame(pagePath) {
+    const frame = document.createElement("iframe");
+    frame.className = "screen-frame";
+    frame.title = "content";
+    frame.loading = "eager";
+    frame.setAttribute("allowtransparency", "true");
+    frame.src = pagePath;
+    els.frames.appendChild(frame);
+    return frame;
+  }
+
+  // Marks pagePath as the most recently used entry in the cache.
+  function touchFrame(pagePath) {
+    frameOrder = frameOrder.filter((p) => p !== pagePath);
+    frameOrder.push(pagePath);
+  }
+
+  // Evicts the oldest cached iframe(s) once the cache is over capacity.
+  function evictOverflow() {
+    while (frameOrder.length > FRAME_CACHE_SIZE) {
+      const oldest = frameOrder.shift();
+      const frame = frameCache.get(oldest);
+      if (frame) frame.remove();
+      frameCache.delete(oldest);
+    }
+  }
+
+  // Shows the iframe for pagePath, hides every other cached one.
+  function revealFrame(pagePath) {
+    frameCache.forEach((frame, path) => {
+      frame.classList.toggle("active", path === pagePath);
+    });
+  }
+
   function setPage(pagePath, titleText) {
     if (pagePath === currentPage) return; // no-op if already open, avoids reload flicker
 
     els.window.classList.add("closing");
 
     setTimeout(() => {
-      els.frame.src = pagePath;
+      let frame = frameCache.get(pagePath);
+      if (!frame) {
+        // cache miss — spin up a fresh iframe for this page
+        frame = createFrame(pagePath);
+        frameCache.set(pagePath, frame);
+      }
+      touchFrame(pagePath);
+      evictOverflow();
+      revealFrame(pagePath);
+
+      activeFrame = frame;
       els.title.textContent = titleText;
       currentPage = pagePath;
       els.window.classList.remove("closing");
@@ -127,8 +188,8 @@
       return [];
     }
     const projects = await response.json();
+    console.log("projects meta.json");
     console.log(projects);
-    console.log(Array.isArray(projects));
     return projects;
   }
 
@@ -285,7 +346,8 @@
    ---------------------------------------------------------- */
   function initShare() {
     els.shareButton.addEventListener("click", () => {
-      window.open(els.frame.src, "_blank");
+      if (!activeFrame) return;
+      window.open(activeFrame.src, "_blank");
     });
   }
 
@@ -308,6 +370,8 @@
       }
       const html = await btnResponse.text();
       const pages = await jsonResponse.json();
+      console.log("pages meta.json");
+      console.log(pages);
       for (const page of pages) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
@@ -316,10 +380,8 @@
         btnObj.dataset.page = page["data-page"];
         btnObj.dataset.title = page["data-title"];
         btnObj.className += page["focus-class"];
-        console.log(btnObj);
         els.pageEntries.appendChild(btnObj);
       }
-      console.log(els.pageEntries);
     } catch (err) {
       console.log("Failed to fetch page-entries : ", err);
     }
