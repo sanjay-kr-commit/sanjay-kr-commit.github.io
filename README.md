@@ -3,8 +3,6 @@
 My personal portfolio built with plain HTML, CSS, and JavaScript.
 
 > **Work in Progress**
->
-> The content is mostly placeholder for now. I'm currently focused on building the application itself, so the projects, descriptions, and other information will be updated over time.
 
 ## Why does it look like this?
 
