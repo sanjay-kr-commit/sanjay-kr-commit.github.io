@@ -22,15 +22,14 @@
   const els = {
     window: document.getElementById("terminal-window"),
     frames: document.getElementById("screen-frames"),
+    skeleton: document.getElementById("screen-skeleton"),
     title: document.getElementById("window-title"),
     navButtons: document.querySelectorAll(".nav-btn"),
     launcherToggle: document.getElementById("launcher-toggle"),
     launcherPanel: document.getElementById("launcher-panel"),
     launcherList: document.getElementById("launcher-list"),
     launcherDetail: document.getElementById("launcher-detail"),
-    detailIconUse: document
-      .getElementById("detail-icon-use")
-      .querySelector("use"),
+    detailIconUse: document.getElementById("detail-icon-use").querySelector("use"),
     detailName: document.getElementById("detail-name"),
     detailDate: document.getElementById("detail-date"),
     detailDescription: document.getElementById("detail-description"),
@@ -86,6 +85,15 @@
   const frameCache = new Map(); // pagePath -> iframe element
   let frameOrder = []; // pagePath list, oldest first (LRU order)
   let activeFrame = null;
+  const loadedFrames = new WeakSet(); // frames whose "load" event has already fired
+
+  function showSkeleton() {
+    els.skeleton.classList.add("visible");
+  }
+
+  function hideSkeleton() {
+    els.skeleton.classList.remove("visible");
+  }
 
   function createFrame(pagePath) {
     const frame = document.createElement("iframe");
@@ -93,6 +101,13 @@
     frame.title = "content";
     frame.loading = "eager";
     frame.setAttribute("allowtransparency", "true");
+    frame.addEventListener("load", () => {
+      loadedFrames.add(frame);
+      // only clear the skeleton if this frame is still the one on screen
+      // (guards against a slow background load finishing after the user
+      // has already navigated elsewhere)
+      if (frame === activeFrame) hideSkeleton();
+    });
     frame.src = pagePath;
     els.frames.appendChild(frame);
     return frame;
@@ -138,6 +153,8 @@
       revealFrame(pagePath);
 
       activeFrame = frame;
+      loadedFrames.has(frame) ? hideSkeleton() : showSkeleton();
+
       els.title.textContent = titleText;
       currentPage = pagePath;
       els.window.classList.remove("closing");
@@ -188,8 +205,8 @@
       return [];
     }
     const projects = await response.json();
-    console.log("projects meta.json");
     console.log(projects);
+    console.log(Array.isArray(projects));
     return projects;
   }
 
@@ -370,8 +387,6 @@
       }
       const html = await btnResponse.text();
       const pages = await jsonResponse.json();
-      console.log("pages meta.json");
-      console.log(pages);
       for (const page of pages) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
@@ -380,8 +395,10 @@
         btnObj.dataset.page = page["data-page"];
         btnObj.dataset.title = page["data-title"];
         btnObj.className += page["focus-class"];
+        console.log(btnObj);
         els.pageEntries.appendChild(btnObj);
       }
+      console.log(els.pageEntries);
     } catch (err) {
       console.log("Failed to fetch page-entries : ", err);
     }

@@ -36,7 +36,21 @@
           <!-- Hot-cache host: JS creates one <iframe> per visited page here
                (up to a fixed cache size) and toggles which one is visible.
                Nothing renders until a page is actually requested. -->
-          <div id="screen-frames" class="screen-frames"></div>
+          <div class="screen-body">
+            <div id="screen-frames" class="screen-frames"></div>
+
+            <!-- Shown over the active frame until its page finishes loading;
+                 hidden instantly on cache hits since those pages already
+                 finished loading before. -->
+            <div id="screen-skeleton" class="screen-skeleton" aria-hidden="true">
+              <div class="skeleton-line w-40"></div>
+              <div class="skeleton-line w-70"></div>
+              <div class="skeleton-line w-55"></div>
+              <div class="skeleton-block"></div>
+              <div class="skeleton-line w-60"></div>
+              <div class="skeleton-line w-35"></div>
+            </div>
+          </div>
         </div>
       </div>
 
