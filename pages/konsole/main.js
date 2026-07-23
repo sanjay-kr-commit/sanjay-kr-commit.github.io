@@ -1,9 +1,44 @@
 const commands = {
   clear,
   echo,
+  exit,
+  which,
+  reload,
 };
 
-function clear(arg) {
+const history = [];
+let historyIndex = 0;
+
+function which(args) {
+  args
+    .split(" ")
+    .filter((func) => func.trim() !== "")
+    .forEach((func) => {
+      const line = document.createElement("pre");
+      line.className = "terminal-output";
+      line.textContent = `-> ${func} definition`;
+      document.body.appendChild(line);
+      const fn = commands[func];
+      if (!fn) {
+        commandNotFound(func);
+      } else {
+        const line2 = document.createElement("pre");
+        line2.className = "terminal-output dim";
+        line2.textContent = fn.toString();
+        document.body.appendChild(line2);
+      }
+    });
+}
+
+function exit(args) {
+  parent.location.reload();
+}
+
+function reload(args) {
+  window.location.reload();
+}
+
+function clear(args) {
   document.body.innerHTML = "";
 }
 
@@ -25,6 +60,9 @@ function commandNotFound(func) {
 }
 
 function processPrompt(prompt) {
+  if (prompt.trim() === "") {
+    return;
+  }
   console.log(prompt);
   const [func, ...args] = prompt.split(" ");
   const command = commands[func];
@@ -37,22 +75,53 @@ function processPrompt(prompt) {
 
 function attachinputreader() {
   document.body.addEventListener("keydown", (event) => {
-    if (
-      event.key === "Enter" &&
-      event.target.classList.contains("terminal-input")
-    ) {
-      const input = event.target;
-      const value = input.value;
+    if (!event.target.classList.contains("terminal-input")) return;
 
-      processPrompt(value);
+    const input = event.target;
 
-      // Replace the input with plain text
-      const text = document.createElement("span");
-      text.textContent = value;
-      input.replaceWith(text);
+    switch (event.key) {
+      case "Enter": {
+        const value = input.value.trim();
 
-      // Add the next prompt
-      injectprompt();
+        if (value !== "" && history.at(-1) !== value) {
+          history.push(value);
+        }
+        historyIndex = history.length;
+
+        processPrompt(value);
+
+        const text = document.createElement("span");
+        text.textContent = value;
+        input.replaceWith(text);
+
+        injectprompt();
+        break;
+      }
+
+      case "ArrowUp": {
+        event.preventDefault();
+
+        if (historyIndex > 0) {
+          historyIndex--;
+          input.value = history[historyIndex];
+        }
+
+        break;
+      }
+
+      case "ArrowDown": {
+        event.preventDefault();
+
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          input.value = history[historyIndex];
+        } else {
+          historyIndex = history.length;
+          input.value = "";
+        }
+
+        break;
+      }
     }
   });
 }
