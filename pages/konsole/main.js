@@ -1,3 +1,8 @@
+const commands = {
+  clear,
+  echo,
+};
+
 function clear(arg) {
   document.body.innerHTML = "";
 }
@@ -10,20 +15,23 @@ function echo(args) {
   document.body.appendChild(line);
 }
 
-function processPrompt(prompt) {
-  console.log(prompt);
-  const parts = prompt.split(" ");
-  const func = parts[0];
-  const args = parts.slice(1).join(" ");
-  try {
-    window[func](args);
-  } catch (_) {
-    const line = document.createElement("div");
-    line.innerHTML = `
+function commandNotFound(func) {
+  const line = document.createElement("div");
+  line.innerHTML = `
       <span class="dim">function not found : ${func}</span>
     `;
-    document.body.appendChild(line);
-    console.log("funtion not found : ", func);
+  document.body.appendChild(line);
+  console.log("funtion not found : ", func);
+}
+
+function processPrompt(prompt) {
+  console.log(prompt);
+  const [func, ...args] = prompt.split(" ");
+  const command = commands[func];
+  if (command) {
+    command(args.join(" "));
+  } else {
+    commandNotFound(func);
   }
 }
 
