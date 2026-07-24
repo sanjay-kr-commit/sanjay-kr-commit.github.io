@@ -29,7 +29,9 @@
     launcherPanel: document.getElementById("launcher-panel"),
     launcherList: document.getElementById("launcher-list"),
     launcherDetail: document.getElementById("launcher-detail"),
-    detailIconUse: document.getElementById("detail-icon-use").querySelector("use"),
+    detailIconUse: document
+      .getElementById("detail-icon-use")
+      .querySelector("use"),
     detailName: document.getElementById("detail-name"),
     detailDate: document.getElementById("detail-date"),
     detailDescription: document.getElementById("detail-description"),
@@ -199,7 +201,7 @@
   }
 */
   async function loadProjects() {
-    const response = await fetch("../projects/meta.json");
+    const response = await fetch("../assets/generated/projects-meta.json");
     if (!response.ok) {
       console.warn("manifest.json missing");
       return [];
@@ -380,7 +382,7 @@
         console.log(`Failed to load pagebtn.html (${btnResponse.status})`);
         return;
       }
-      const jsonResponse = await fetch("../pages/meta.json");
+      const jsonResponse = await fetch("../assets/generated/pages-meta.json");
       if (!jsonResponse.ok) {
         console.log(`Failed to load meta.json (${jsonResponse.status})`);
         return;

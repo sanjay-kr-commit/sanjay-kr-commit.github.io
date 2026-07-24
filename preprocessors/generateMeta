@@ -3,7 +3,7 @@
 SCRIPT_FOLDER="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 cd $SCRIPT_FOLDER
 cd ..
-generatefile="projects/meta.json"
+generatefile="assets/generated/projects-meta.json"
 if [[ -f $generatefile ]]; then
   rm $generatefile
 fi
