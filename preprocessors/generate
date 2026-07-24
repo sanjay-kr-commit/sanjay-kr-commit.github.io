@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+SCRIPT="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_FOLDER="$(dirname $SCRIPT)"
+SCRIPT_NAME="$(echo $SCRIPT | grep -o "[^/]\+\$")"
+cd $SCRIPT_FOLDER
+if [[ -f $generatefile ]]; then
+  rm $generatefile
+fi
+find . -type f | grep -v "./$SCRIPT_NAME\$" | while read -r file; do
+  echo "Executing -> $file"
+  $file
+done
