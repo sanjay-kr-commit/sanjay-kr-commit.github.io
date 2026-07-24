@@ -1,0 +1,171 @@
+{
+  "folderToFolder": {
+    "/assets": [
+      "generated"
+    ],
+    "/assets/generated": [],
+    "/css": [],
+    "/js": [],
+    "/projects": [
+      "dotfiles",
+      "tanoshi",
+      "huffman-encoding",
+      "deflate-jar",
+      "ballooning-obfuscation",
+      "tictactoe-kotlin-dsl",
+      "panel-transparency-toggle",
+      "script-and-small-program"
+    ],
+    "/projects/dotfiles": [],
+    "/projects/tanoshi": [],
+    "/projects/huffman-encoding": [],
+    "/projects/deflate-jar": [],
+    "/projects/ballooning-obfuscation": [],
+    "/projects/tictactoe-kotlin-dsl": [],
+    "/projects/panel-transparency-toggle": [],
+    "/projects/script-and-small-program": [],
+    "/preprocessors": [],
+    "/pages": [
+      "home",
+      "about",
+      "philosophy",
+      "workspace",
+      "workflow",
+      "opensource",
+      "cp",
+      "timeline",
+      "skills",
+      "resume",
+      "contacts",
+      "konsole"
+    ],
+    "/pages/home": [],
+    "/pages/about": [],
+    "/pages/philosophy": [],
+    "/pages/workspace": [],
+    "/pages/workflow": [],
+    "/pages/opensource": [],
+    "/pages/cp": [],
+    "/pages/timeline": [],
+    "/pages/skills": [],
+    "/pages/resume": [],
+    "/pages/contacts": [],
+    "/pages/konsole": []
+  },
+  "folderToFile": {
+    "/assets": [
+      "icons.svg",
+      "pagebtn.html",
+      "favicon-full-res.png",
+      "favicon.png"
+    ],
+    "/assets/generated": [
+      "filetree-meta.json",
+      "pages-meta.json",
+      "projects-meta.json"
+    ],
+    "/css": [
+      "style.css",
+      "subpage.css"
+    ],
+    "/js": [
+      "icons.js",
+      "main.js"
+    ],
+    "/projects": [],
+    "/projects/dotfiles": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/projects/tanoshi": [
+      "index.html",
+      "script.js",
+      "style.css",
+      "meta.toml"
+    ],
+    "/projects/huffman-encoding": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/projects/deflate-jar": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/projects/ballooning-obfuscation": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/projects/tictactoe-kotlin-dsl": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/projects/panel-transparency-toggle": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/projects/script-and-small-program": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
+    "/preprocessors": [
+      "generatePageMeta",
+      "generateProjectMeta",
+      "generate",
+      "generateFileSystemTree"
+    ],
+    "/pages": [],
+    "/pages/home": [
+      "index.html",
+      "active"
+    ],
+    "/pages/about": [
+      "index.html"
+    ],
+    "/pages/philosophy": [
+      "index.html"
+    ],
+    "/pages/workspace": [
+      "index.html"
+    ],
+    "/pages/workflow": [
+      "index.html"
+    ],
+    "/pages/opensource": [
+      "index.html"
+    ],
+    "/pages/cp": [
+      "index.html"
+    ],
+    "/pages/timeline": [
+      "index.html"
+    ],
+    "/pages/skills": [
+      "index.html"
+    ],
+    "/pages/resume": [
+      "index.html"
+    ],
+    "/pages/contacts": [
+      "index.html"
+    ],
+    "/pages/konsole": [
+      "konsole.css",
+      "index.html",
+      "main.js"
+    ]
+  }
+}

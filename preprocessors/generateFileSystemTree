@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+SCRIPT_FOLDER="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"
+generatefile="assets/generated/filetree-meta.json"
+if [[ -f $generatefile ]]; then
+  rm $generatefile
+fi
+cd ..
+directories() {
+  find "$1" -mindepth 1 -maxdepth 1 -type d ! -name '.git' -printf '%f\n'
+}
+
+files() {
+  find "$1" -mindepth 1 -maxdepth 1 -type f -printf '%f\n'
+}
+
+# 1 is prefix
+# 2 is current dir
+iterateFolders() (
+  directories $2 | while read -r dir; do
+    echo "\"$1$dir\" : ["
+    directories "$2/$dir" | sed -e 's/^\(.\+\)/"\1"/' | tr '\n' ',' | sed -e 's/,$/\n/' -e "s/,/,\n/"
+    echo "],"
+    iterateFolders "$1$dir/" "$2/$dir"
+  done
+)
+
+folderToFolder() {
+  echo "\"folderToFolder\" : {"
+  iterateFolders / $SCRIPT_FOLDER | head -n -1
+  echo "]"
+  echo "}"
+}
+
+iterateFiles() (
+  directories $2 | while read -r dir; do
+    echo "\"$1$dir\" : ["
+    files "$2/$dir" | sed -e 's/^\(.\+\)/"\1"/' | tr '\n' ',' | sed -e 's/,$/\n/' -e "s/,/,\n/"
+    echo "],"
+    iterateFiles "$1$dir/" "$2/$dir"
+  done
+)
+
+folderToFile() {
+  echo "\"folderToFile\" : {"
+  iterateFiles / $SCRIPT_FOLDER | head -n -1
+  echo "]"
+  echo "}"
+}
+
+generateJson() {
+  echo "{"
+  folderToFolder
+  echo ","
+  folderToFile
+  echo "}"
+}
+
+generateJson | jq . >$generatefile
