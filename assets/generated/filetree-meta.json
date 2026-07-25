@@ -1,5 +1,13 @@
 {
   "folderToFolder": {
+    "/": [
+      "assets",
+      "css",
+      "js",
+      "projects",
+      "preprocessors",
+      "pages"
+    ],
     "/assets": [
       "generated"
     ],
@@ -53,16 +61,23 @@
     "/pages/konsole": []
   },
   "folderToFile": {
+    "/": [
+      "list.txt",
+      "index.html",
+      "README.md",
+      "site.zip"
+    ],
     "/assets": [
       "icons.svg",
       "pagebtn.html",
       "favicon-full-res.png",
-      "favicon.png"
+      "favicon.png",
+      "generatefile"
     ],
     "/assets/generated": [
-      "filetree-meta.json",
       "pages-meta.json",
-      "projects-meta.json"
+      "projects-meta.json",
+      "filetree-meta.json"
     ],
     "/css": [
       "style.css",
@@ -129,8 +144,7 @@
     ],
     "/pages": [],
     "/pages/home": [
-      "index.html",
-      "active"
+      "index.html"
     ],
     "/pages/about": [
       "index.html"
@@ -165,6 +179,7 @@
     "/pages/konsole": [
       "konsole.css",
       "index.html",
+      "active",
       "main.js"
     ]
   }
