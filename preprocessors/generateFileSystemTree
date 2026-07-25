@@ -27,6 +27,9 @@ iterateFolders() (
 
 folderToFolder() {
   echo "\"folderToFolder\" : {"
+  echo "\"/\" : ["
+  directories "$SCRIPT_FOLDER" | sed -e 's/^\(.\+\)/"\1"/' | tr '\n' ',' | sed -e 's/,$/\n/' -e "s/,/,\n/"
+  echo "],"
   iterateFolders / $SCRIPT_FOLDER | head -n -1
   echo "]"
   echo "}"
@@ -43,6 +46,9 @@ iterateFiles() (
 
 folderToFile() {
   echo "\"folderToFile\" : {"
+  echo "\"/\" : ["
+  files "$SCRIPT_FOLDER" | sed -e 's/^\(.\+\)/"\1"/' | tr '\n' ',' | sed -e 's/,$/\n/' -e "s/,/,\n/"
+  echo "],"
   iterateFiles / $SCRIPT_FOLDER | head -n -1
   echo "]"
   echo "}"
