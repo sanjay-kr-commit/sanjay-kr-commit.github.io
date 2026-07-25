@@ -6,3 +6,12 @@
   color: white;
   font: inherit;
 }
+
+.dir {
+  color: #64b5f6; /* blue */
+  font-weight: 500;
+}
+
+.file {
+  color: #d4d4d4; /* light gray */
+}

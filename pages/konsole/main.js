@@ -4,10 +4,89 @@ const commands = {
   exit,
   which,
   reload,
+  pwd,
+  ls,
+  cd,
 };
 
+let dir = "/";
 const history = [];
 let historyIndex = 0;
+let filetree;
+
+function pwd(args) {
+  echo(dir);
+}
+
+async function fetchFileTree() {
+  const response = await fetch("../../assets/generated/filetree-meta.json");
+  if (!response.ok) {
+    console.warn("filetree-meta.json missing");
+    return false;
+  }
+  filetree = await response.json();
+  console.log(filetree);
+  return true;
+}
+
+function cd(args) {
+  if (!args || args.trim() === "") {
+    dir = "/";
+    return;
+  }
+  let newdir = dir;
+  if (!filetree) {
+    const line = document.createElement("div");
+    line.innerHTML = `
+      <span class="dim">filetree Structure not found</span>
+    `;
+    document.body.appendChild(line);
+    return;
+  }
+  paths = args.split("/").filter((func) => func.trim() !== "");
+  for (const path of paths) {
+    if (path === "..") {
+      if (newdir === "/") {
+        echo(`${args}: invalid Path`);
+        return;
+      }
+      newdir = newdir.replace(/\/[^/]+$/, "") || "/";
+    } else {
+      const target = newdir === "/" ? `/${path}` : `${newdir}/${path}`;
+      if (target in filetree.folderToFolder) {
+        newdir = target;
+      } else {
+        echo(`${args}: invalid Path`);
+        return;
+      }
+    }
+  }
+  dir = newdir;
+}
+
+function ls(args) {
+  if (dir !== "/") {
+    const line = document.createElement("div");
+    line.innerHTML = `
+      <span class="dim dir">d: ..</span>
+    `;
+    document.body.appendChild(line);
+  }
+  filetree.folderToFolder[dir].forEach((folder) => {
+    const line = document.createElement("div");
+    line.innerHTML = `
+      <span class="dim dir">d: ${folder}</span>
+    `;
+    document.body.appendChild(line);
+  });
+  filetree.folderToFile[dir].forEach((file) => {
+    const line = document.createElement("div");
+    line.innerHTML = `
+      <span class="dim file">f: ${file}</span>
+    `;
+    document.body.appendChild(line);
+  });
+}
 
 function which(args) {
   args
@@ -127,19 +206,22 @@ function attachinputreader() {
 }
 
 function injectprompt() {
+  let sym = dir;
+  if (sym === "/") sym = "~";
   const line = document.createElement("div");
   line.className = "terminal-line";
   line.innerHTML = `
-    <span class="prompt">visitor@sanjay:~$</span>
+    <span class="prompt">visitor@sanjay:${sym}$</span>
     <input type="text" class="terminal-input" autofocus>
   `;
   document.body.appendChild(line);
   line.querySelector(".terminal-input").focus();
 }
 
-function init() {
+async function init() {
   attachinputreader();
   injectprompt();
+  fetchFileTree();
 }
 
 init();
