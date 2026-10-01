@@ -15,15 +15,16 @@
     "/css": [],
     "/js": [],
     "/projects": [
+      "dotfiles",
       "tanoshi",
       "huffman-encoding",
       "deflate-jar",
       "ballooning-obfuscation",
       "tictactoe-kotlin-dsl",
       "panel-transparency-toggle",
-      "script-and-small-program",
-      "zforge"
+      "script-and-small-program"
     ],
+    "/projects/dotfiles": [],
     "/projects/tanoshi": [],
     "/projects/huffman-encoding": [],
     "/projects/deflate-jar": [],
@@ -31,7 +32,6 @@
     "/projects/tictactoe-kotlin-dsl": [],
     "/projects/panel-transparency-toggle": [],
     "/projects/script-and-small-program": [],
-    "/projects/zforge": [],
     "/preprocessors": [],
     "/pages": [
       "home",
@@ -65,7 +65,8 @@
       "list.txt",
       "index.html",
       "README.md",
-      "site.zip"
+      "site.zip",
+      "generatefile"
     ],
     "/assets": [
       "icons.svg",
@@ -75,9 +76,9 @@
       "generatefile"
     ],
     "/assets/generated": [
-      "filetree-meta.json",
       "pages-meta.json",
-      "projects-meta.json"
+      "projects-meta.json",
+      "filetree-meta.json"
     ],
     "/css": [
       "style.css",
@@ -88,6 +89,12 @@
       "main.js"
     ],
     "/projects": [],
+    "/projects/dotfiles": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "meta.toml"
+    ],
     "/projects/tanoshi": [
       "index.html",
       "script.js",
@@ -128,13 +135,6 @@
       "index.html",
       "style.css",
       "script.js",
-      "meta.toml"
-    ],
-    "/projects/zforge": [
-      "script.js",
-      "index.html",
-      "details.html",
-      "style.css",
       "meta.toml"
     ],
     "/preprocessors": [
@@ -178,9 +178,9 @@
       "index.html"
     ],
     "/pages/konsole": [
+      "konsole.css",
       "index.html",
       "active",
-      "konsole.css",
       "main.js"
     ]
   }

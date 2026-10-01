@@ -1,16 +1,5 @@
 [
   {
-     "id" : "dotfiles",
-     "name" : "Dotfiles",
-     "meta" : "zsh,shell,dotfiles,tooling,automation",
-     "icon" : "icon-terminal",
-     "color" : "var(--accent-pink)",
-     "description" : "A zsh setup that reconfigures itself: modules declare their own priority, dependencies and flags in comments, and a loader parses them. No config, a small framework.",
-     "github" : "https://github.com/sanjay-kr-commit/dotfiles",
-     "date" : "2026-07-20",
-     "page" : "projects/dotfiles/index.html"
-  },
-  {
      "id" : "tanoshi-multiplatform",
      "name" : "Tanoshi Multiplatform",
      "meta" : "kotlin,compose-multiplatform,android,desktop,plugin-architecture",
@@ -86,5 +75,16 @@
      "github" : "https://github.com/sanjay-kr-commit/script-and-small-program",
      "date" : "2022-11-30",
      "page" : "projects/script-and-small-program/index.html"
+  },
+  {
+     "id" : "zforge",
+     "name" : "zforge",
+     "meta" : "zsh,shell,compiler,dotfiles,caching,automation",
+     "icon" : "icon-terminal",
+     "color" : "var(--accent-pink)",
+     "description" : "A zsh setup that compiles itself: modules declare priority, dependencies, flags and env in @-comments, and a fingerprinting pipeline turns them into a cached, lazy-loaded snapshot.",
+     "github" : "https://github.com/sanjay-kr-commit/zforge",
+     "date" : "2026-10-02",
+     "page" : "projects/zforge/index.html"
   }
 ]
