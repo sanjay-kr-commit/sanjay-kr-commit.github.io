@@ -4,9 +4,9 @@
       "assets",
       "css",
       "js",
-      "projects",
+      "pages",
       "preprocessors",
-      "pages"
+      "projects"
     ],
     "/assets": [
       "generated"
@@ -14,65 +14,63 @@
     "/assets/generated": [],
     "/css": [],
     "/js": [],
+    "/pages": [
+      "about",
+      "contacts",
+      "cp",
+      "home",
+      "konsole",
+      "opensource",
+      "philosophy",
+      "resume",
+      "skills",
+      "timeline",
+      "workflow",
+      "workspace"
+    ],
+    "/pages/about": [],
+    "/pages/contacts": [],
+    "/pages/cp": [],
+    "/pages/home": [],
+    "/pages/konsole": [],
+    "/pages/opensource": [],
+    "/pages/philosophy": [],
+    "/pages/resume": [],
+    "/pages/skills": [],
+    "/pages/timeline": [],
+    "/pages/workflow": [],
+    "/pages/workspace": [],
+    "/preprocessors": [],
     "/projects": [
-      "tanoshi",
-      "huffman-encoding",
-      "deflate-jar",
       "ballooning-obfuscation",
-      "tictactoe-kotlin-dsl",
+      "deflate-jar",
+      "huffman-encoding",
       "panel-transparency-toggle",
       "script-and-small-program",
+      "tanoshi",
+      "tictactoe-kotlin-dsl",
       "zforge"
     ],
-    "/projects/tanoshi": [],
-    "/projects/huffman-encoding": [],
-    "/projects/deflate-jar": [],
     "/projects/ballooning-obfuscation": [],
-    "/projects/tictactoe-kotlin-dsl": [],
+    "/projects/deflate-jar": [],
+    "/projects/huffman-encoding": [],
     "/projects/panel-transparency-toggle": [],
     "/projects/script-and-small-program": [],
-    "/projects/zforge": [],
-    "/preprocessors": [],
-    "/pages": [
-      "home",
-      "about",
-      "philosophy",
-      "workspace",
-      "workflow",
-      "opensource",
-      "cp",
-      "timeline",
-      "skills",
-      "resume",
-      "contacts",
-      "konsole"
-    ],
-    "/pages/home": [],
-    "/pages/about": [],
-    "/pages/philosophy": [],
-    "/pages/workspace": [],
-    "/pages/workflow": [],
-    "/pages/opensource": [],
-    "/pages/cp": [],
-    "/pages/timeline": [],
-    "/pages/skills": [],
-    "/pages/resume": [],
-    "/pages/contacts": [],
-    "/pages/konsole": []
+    "/projects/tanoshi": [],
+    "/projects/tictactoe-kotlin-dsl": [],
+    "/projects/zforge": []
   },
   "folderToFile": {
     "/": [
-      "list.txt",
-      "index.html",
       "README.md",
-      "site.zip"
+      "index.html"
     ],
     "/assets": [
-      "icons.svg",
-      "pagebtn.html",
       "favicon-full-res.png",
       "favicon.png",
-      "generatefile"
+      "generatefile",
+      "icons.svg",
+      "pagebtn.html"
     ],
     "/assets/generated": [
       "filetree-meta.json",
@@ -87,101 +85,101 @@
       "icons.js",
       "main.js"
     ],
-    "/projects": [],
-    "/projects/tanoshi": [
-      "index.html",
-      "script.js",
-      "style.css",
-      "meta.toml"
-    ],
-    "/projects/huffman-encoding": [
-      "index.html",
-      "style.css",
-      "script.js",
-      "meta.toml"
-    ],
-    "/projects/deflate-jar": [
-      "index.html",
-      "style.css",
-      "script.js",
-      "meta.toml"
-    ],
-    "/projects/ballooning-obfuscation": [
-      "index.html",
-      "style.css",
-      "script.js",
-      "meta.toml"
-    ],
-    "/projects/tictactoe-kotlin-dsl": [
-      "index.html",
-      "style.css",
-      "script.js",
-      "meta.toml"
-    ],
-    "/projects/panel-transparency-toggle": [
-      "index.html",
-      "style.css",
-      "script.js",
-      "meta.toml"
-    ],
-    "/projects/script-and-small-program": [
-      "index.html",
-      "style.css",
-      "script.js",
-      "meta.toml"
-    ],
-    "/projects/zforge": [
-      "script.js",
-      "index.html",
-      "details.html",
-      "style.css",
-      "meta.toml"
-    ],
-    "/preprocessors": [
-      "generatePageMeta",
-      "generateProjectMeta",
-      "generate",
-      "generateFileSystemTree"
-    ],
     "/pages": [],
-    "/pages/home": [
-      "index.html"
-    ],
     "/pages/about": [
-      "index.html"
-    ],
-    "/pages/philosophy": [
-      "index.html"
-    ],
-    "/pages/workspace": [
-      "index.html"
-    ],
-    "/pages/workflow": [
-      "index.html"
-    ],
-    "/pages/opensource": [
-      "index.html"
-    ],
-    "/pages/cp": [
-      "index.html"
-    ],
-    "/pages/timeline": [
-      "index.html"
-    ],
-    "/pages/skills": [
-      "index.html"
-    ],
-    "/pages/resume": [
       "index.html"
     ],
     "/pages/contacts": [
       "index.html"
     ],
+    "/pages/cp": [
+      "index.html"
+    ],
+    "/pages/home": [
+      "active",
+      "index.html"
+    ],
     "/pages/konsole": [
       "index.html",
-      "active",
       "konsole.css",
       "main.js"
+    ],
+    "/pages/opensource": [
+      "index.html"
+    ],
+    "/pages/philosophy": [
+      "index.html"
+    ],
+    "/pages/resume": [
+      "index.html"
+    ],
+    "/pages/skills": [
+      "index.html"
+    ],
+    "/pages/timeline": [
+      "index.html"
+    ],
+    "/pages/workflow": [
+      "index.html"
+    ],
+    "/pages/workspace": [
+      "index.html"
+    ],
+    "/preprocessors": [
+      "generate",
+      "generateFileSystemTree",
+      "generatePageMeta",
+      "generateProjectMeta"
+    ],
+    "/projects": [],
+    "/projects/ballooning-obfuscation": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/deflate-jar": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/huffman-encoding": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/panel-transparency-toggle": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/script-and-small-program": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/tanoshi": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/tictactoe-kotlin-dsl": [
+      "index.html",
+      "meta.toml",
+      "script.js",
+      "style.css"
+    ],
+    "/projects/zforge": [
+      "meta.toml",
+      "details.html",
+      "index.html",
+      "site-data.js",
+      "style.css"
     ]
   }
 }

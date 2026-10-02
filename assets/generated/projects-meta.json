@@ -1,25 +1,14 @@
 [
   {
-     "id" : "tanoshi-multiplatform",
-     "name" : "Tanoshi Multiplatform",
-     "meta" : "kotlin,compose-multiplatform,android,desktop,plugin-architecture",
-     "icon" : "icon-music",
-     "color" : "var(--accent-coral)",
-     "description" : "A Kotlin Multiplatform anime/manga reader where the desktop app reimplements Android's own Activity lifecycle from scratch, and extensions are sandboxed plugins with off-by-default permissions.",
-     "github" : "https://github.com/sanjay-kr-commit/Tanoshi-Multiplatform",
-     "date" : "2025-01-26",
-     "page" : "projects/tanoshi/index.html"
-  },
-  {
-     "id" : "huffman-encoding",
-     "name" : "Huffman Encoding",
-     "meta" : "kotlin,compose-desktop,compression,algorithms",
-     "icon" : "icon-cpu",
-     "color" : "var(--accent-green)",
-     "description" : "A from-scratch Huffman compressor with a Compose Desktop shell: per-segment trees, a run-length trick for serializing the tree itself, and the byte-offset issue that comes with it.",
-     "github" : "https://github.com/sanjay-kr-commit/huffman-encoding",
-     "date" : "2025-09-30",
-     "page" : "projects/huffman-encoding/index.html"
+     "id" : "ballooning-obfuscation",
+     "name" : "Ballooning Obfuscation",
+     "meta" : "python,obfuscation,ascii,sha256,toy-cipher",
+     "icon" : "icon-bug",
+     "color" : "var(--accent-purple)",
+     "description" : "An ASCII obfuscation scheme that reverses and pads each byte before adding a positional keystream — one version with an embedded random salt, one keyed by a password through SHA-256.",
+     "github" : "https://github.com/sanjay-kr-commit/Balooning-obfuscation",
+     "date" : "2026-06-24",
+     "page" : "projects/ballooning-obfuscation/index.html"
   },
   {
      "id" : "deflate-jar",
@@ -33,26 +22,15 @@
      "page" : "projects/deflate-jar/index.html"
   },
   {
-     "id" : "ballooning-obfuscation",
-     "name" : "Ballooning Obfuscation",
-     "meta" : "python,obfuscation,ascii,sha256,toy-cipher",
-     "icon" : "icon-bug",
-     "color" : "var(--accent-purple)",
-     "description" : "An ASCII obfuscation scheme that reverses and pads each byte before adding a positional keystream — one version with an embedded random salt, one keyed by a password through SHA-256.",
-     "github" : "https://github.com/sanjay-kr-commit/Balooning-obfuscation",
-     "date" : "2026-06-24",
-     "page" : "projects/ballooning-obfuscation/index.html"
-  },
-  {
-     "id" : "tictactoe-kotlin-dsl",
-     "name" : "Kotlin DSL Tic-Tac-Toe",
-     "meta" : "kotlin,dsl,extension-functions,jvm,art-project",
-     "icon" : "icon-apps",
-     "color" : "var(--accent-lime)",
-     "description" : "Tic-tac-toe written as a Kotlin DSL — infix extension functions, scoped builder lambdas, and a static rule-based bot, built to see if game logic could read like a Compose UI declaration.",
-     "github" : "https://github.com/sanjay-kr-commit/tic-tac-toe-with-kotlin-dsl",
-     "date" : "2023-12-24",
-     "page" : "projects/tictactoe-kotlin-dsl/index.html"
+     "id" : "huffman-encoding",
+     "name" : "Huffman Encoding",
+     "meta" : "kotlin,compose-desktop,compression,algorithms",
+     "icon" : "icon-cpu",
+     "color" : "var(--accent-green)",
+     "description" : "A from-scratch Huffman compressor with a Compose Desktop shell: per-segment trees, a run-length trick for serializing the tree itself, and the byte-offset issue that comes with it.",
+     "github" : "https://github.com/sanjay-kr-commit/huffman-encoding",
+     "date" : "2025-09-30",
+     "page" : "projects/huffman-encoding/index.html"
   },
   {
      "id" : "panel-transparency-toggle",
@@ -75,6 +53,28 @@
      "github" : "https://github.com/sanjay-kr-commit/script-and-small-program",
      "date" : "2022-11-30",
      "page" : "projects/script-and-small-program/index.html"
+  },
+  {
+     "id" : "tanoshi-multiplatform",
+     "name" : "Tanoshi Multiplatform",
+     "meta" : "kotlin,compose-multiplatform,android,desktop,plugin-architecture",
+     "icon" : "icon-music",
+     "color" : "var(--accent-coral)",
+     "description" : "A Kotlin Multiplatform anime/manga reader where the desktop app reimplements Android's own Activity lifecycle from scratch, and extensions are sandboxed plugins with off-by-default permissions.",
+     "github" : "https://github.com/sanjay-kr-commit/Tanoshi-Multiplatform",
+     "date" : "2025-01-26",
+     "page" : "projects/tanoshi/index.html"
+  },
+  {
+     "id" : "tictactoe-kotlin-dsl",
+     "name" : "Kotlin DSL Tic-Tac-Toe",
+     "meta" : "kotlin,dsl,extension-functions,jvm,art-project",
+     "icon" : "icon-apps",
+     "color" : "var(--accent-lime)",
+     "description" : "Tic-tac-toe written as a Kotlin DSL — infix extension functions, scoped builder lambdas, and a static rule-based bot, built to see if game logic could read like a Compose UI declaration.",
+     "github" : "https://github.com/sanjay-kr-commit/tic-tac-toe-with-kotlin-dsl",
+     "date" : "2023-12-24",
+     "page" : "projects/tictactoe-kotlin-dsl/index.html"
   },
   {
      "id" : "zforge",

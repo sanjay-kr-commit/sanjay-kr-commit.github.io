@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Details - zforge</title>
+<meta name="description" content="Module metadata, fingerprints, snapshots, lazy generation, flags, limits and current work in zforge.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a class="name" href="index.html">zforge</a>
+  <a href="details.html" aria-current="page">Details</a>
+  <a href="https://github.com/sanjay-kr-commit/zforge">GitHub</a>
+  <a href="https://sanjay-kr-commit.github.io/">Portfolio</a>
+</header>
+<main>
+  <h1>Details.</h1>
+  <p class="lede">The parts worth knowing, and what is not finished.</p>
+
+  <section>
+    <h2>Fingerprints and snapshots</h2>
+    <p>A SHA-256 hash of the generation-relevant state (module configuration and source, runtime source, dependencies, and boot flags that affect generation) tells ZForge whether the configuration changed. It is for change detection. It does not mean a rebuild on every shell.</p>
+    <p>Snapshots are indexed by that hash, so returning to an earlier configuration reuses its existing snapshot. Generation writes a candidate separately and publishes it only on success, so an incomplete build never replaces the working runtime. <code>FREEZE_BACKGROUND_VALIDATION</code> turns the background check off, and <code>zforge --generate</code> forces a foreground build.</p>
+  </section>
+
+  <section>
+    <h2>Module metadata</h2>
+    <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>@p -> N</td><td>Priority.</td></tr>
+        <tr><td>@d -> name</td><td>Depends on another enabled module. A missing one is rejected, not ignored.</td></tr>
+        <tr><td>@f -> FLAG</td><td>Registers a dynamic flag.</td></tr>
+        <tr><td>@e -> VAR</td><td>Declares an environment variable the module uses.</td></tr>
+        <tr><td>@nomerge</td><td>Keeps the module out of the merged master file; it is sourced separately.</td></tr>
+        <tr><td>@lazy, @nolazy</td><td>Request or disable lazy handling for the module.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The analyzer checks dependency presence, circular dependencies and priority conflicts. Merged modules are wrapped in an anonymous function so a top-level <code>return</code> stays inside the module.</p>
+  </section>
+
+  <section>
+    <h2>Lazy generation</h2>
+    <p>A text-based analyzer finds functions that can be replaced with a wrapper that loads the real definition on first call. It is not a zsh parser, so unusual syntax may confuse it. <code>@nolazy</code> is the escape hatch.</p>
+  </section>
+
+  <section>
+    <h2>Flags</h2>
+    <p><strong>Boot flags</strong> live in <code>local/public/runtime/bootflags</code> (for example <code>SILENT_LOG</code>, <code>LOGALL</code>). <strong>Runtime flags</strong> live in <code>local/public/runtime/flags</code>. <strong>Dynamic flags</strong> are declared by modules with <code>@f</code>. The <code>:flags</code> command manages all three. <code>:log</code> shows the session log, and <code>EMBED_FILE_ID_FOR_DEBUG</code> embeds module identifiers in generated output.</p>
+  </section>
+
+  <section>
+    <h2>Public and private state</h2>
+    <p>Configuration is split into <code>local/public/</code> and <code>local/private/</code>. The <code>gocryptfs</code> module handles encrypted private configuration. Once it is mounted and decrypted, the content is available to the local environment like any other files.</p>
+  </section>
+
+  <section>
+    <h2>The 18 modules</h2>
+    <p>15 are enabled in the current configuration.</p>
+<pre>activateVenv          ascii_art_fastfetch   env_flags
+fzfForPreviousCmd     gitPass               gocryptfs
+homebrew              inline_buffer_editor  loadBins
+omz                   omz_helper            persistentAlias
+pokemon-fastfetch     sdkman                sudo_systemd_ask_pass
+tmux_terminal         track_config          z</pre>
+  </section>
+
+  <section id="limits">
+    <h2>Limits</h2>
+    <ul>
+      <li>Linux and zsh only. It relies on <code>/dev/shm</code>, <code>grep -P</code>, <code>realpath</code>, <code>find</code> and GNU-style tools. macOS compatibility has not been established.</li>
+      <li>The lazy analyzer works on text. The generated-script syntax check is currently stubbed.</li>
+      <li>There is no resource-conflict model between modules yet.</li>
+      <li>External tools (fzf, uuidgen, tmux, zoxide, gocryptfs, jq, htmlq, fastfetch and others) are not yet declared or diagnosed per module.</li>
+      <li><code>gitPass</code> still handles tokens in plaintext. Replacing that with a credential helper is on the TODO.</li>
+      <li>Tests for generation, snapshot reuse and lazy wrappers are not written yet.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Current work</h2>
+    <p>From <code>TODO.md</code>. Ideas beyond this list are possibilities, not commitments, and are not listed here.</p>
+    <table>
+      <tbody>
+        <tr><th>Cleanup</th><td>Known path bugs, <code>:list_env</code>, error propagation in the priority check, temp-file handling</td></tr>
+        <tr><th>Generation safety</th><td>Syntax checking, clean-zsh tests, visible background-generation failures</td></tr>
+        <tr><th>Conflicts</th><td>Duplicate flags, shared resources</td></tr>
+        <tr><th>Dependencies</th><td>Declared external commands, <code>:doctor</code></td></tr>
+        <tr><th>Snapshots</th><td>Listing, inspection, cleanup, explicit rollback</td></tr>
+        <tr><th>New machine</th><td>Bootstrap script, minimal install docs, fresh-environment test</td></tr>
+        <tr><th>Tooling</th><td>Module scaffolding, lint, explain, dependency graph</td></tr>
+      </tbody>
+    </table>
+    <p><a href="https://github.com/sanjay-kr-commit/zforge">Repository on GitHub</a></p>
+  </section>
+</main>
+<footer>
+  <p>Sanjay Kumar Mandal · <a href="https://github.com/sanjay-kr-commit/zforge">GitHub</a> · <a href="https://sanjay-kr-commit.github.io/projects/zforge/">Project</a> · <a href="https://sanjay-kr-commit.github.io/">Portfolio</a></p>
+</footer>
+<script src="site-data.js"></script>
+</body>
+</html>

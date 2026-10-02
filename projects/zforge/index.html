@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>zforge - a build/runtime system for zsh</title>
+<meta name="description" content="zforge is a personal zsh project that builds a generated runtime snapshot from modules, metadata and fingerprints, and starts the shell from that generated state.">
+<meta property="og:title" content="ZForge">
+<meta property="og:description" content="A build system for my zsh environment.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a class="name" href="index.html" aria-current="page">zforge</a>
+  <a href="details.html">Details</a>
+  <a href="https://github.com/sanjay-kr-commit/zforge">GitHub</a>
+  <a href="https://sanjay-kr-commit.github.io/">Portfolio</a>
+</header>
+<main>
+  <h1>A build system for my zsh environment.</h1>
+  <p class="lede">I wanted my shell configuration to behave less like a growing <code>.zshrc</code> and more like a project.</p>
+  <p class="actions"><a href="https://github.com/sanjay-kr-commit/zforge">GitHub</a><a href="https://sanjay-kr-commit.github.io/projects/zforge/">Project page</a><a href="details.html">Details</a></p>
+
+  <section>
+    <h2>Why it exists</h2>
+    <p>I had a shell configuration that kept growing. At some point, adding another function stopped feeling free.</p>
+    <p>Ordering needed dependencies. Rebuilding needed change detection, which led to fingerprints. Generated state needed safe replacement, which led to snapshots. Startup time made lazy loading worth having. I did not set out to write a framework. Each question produced one more small piece, and together they became a build system. It is still just zsh underneath.</p>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p>Modules stay ordinary zsh files. Comments in them describe priorities, dependencies and flags. ZForge builds a snapshot from them and zsh starts from that.</p>
+<pre aria-label="Pipeline: module source, metadata, fingerprint, validate and order, generate, snapshot, zsh.">module source
+  <span class="m">↓</span>
+metadata
+  <span class="m">↓</span>
+<span class="a">fingerprint</span>
+  <span class="m">↓</span>
+validate + order
+  <span class="m">↓</span>
+generate
+  <span class="m">↓</span>
+snapshot
+  <span class="m">↓</span>
+zsh</pre>
+    <p>On a warm start the existing snapshot loads immediately while ZForge checks in the background whether anything changed. If it did, the new snapshot is prepared separately and used by the next shell. If it did not, the snapshot is reused. A cold start, with no snapshot yet, generates one first.</p>
+    <p>If generation fails, the previous snapshot stays in place and the failed fingerprint is recorded, so a broken configuration is not rebuilt in every shell.</p>
+  </section>
+
+  <section>
+    <h2>A module is still zsh</h2>
+<pre><span class="m">#!/bin/env zsh</span>
+
+<span class="a">#</span> @p -> 50
+<span class="a">#</span> @d -> tmux_terminal
+<span class="a">#</span> @f -> MY_FEATURE
+
+my_feature() {
+    ...
+}</pre>
+    <p>The comments set priority, a dependency and a dynamic flag. The module does not need a second language.</p>
+  </section>
+
+  <section>
+    <h2>Numbers</h2>
+    <p>Warm initialization measured about <strong><span data-k="warmInitMs">190</span> ms</strong> in my development configuration, with the relevant module disabled and tmux removed. It is one measurement from one environment, not a benchmark.</p>
+    <p>The source is <span data-k="sourceFiles">70</span> files (<span data-k="moduleFiles">18</span> modules, <span data-k="modules.enabled">15</span> enabled) and <span data-k="sourceLines">2,826</span> lines of runtime and module source. That is the size of the source, not what warm startup parses. Startup works from generated state, and fingerprints exist to avoid unnecessary regeneration.</p>
+  </section>
+
+  <section>
+    <h2>Still evolving</h2>
+    <p>ZForge works, and it is still a personal project. Current work is on generation safety and tests, dependency diagnostics, snapshot tooling and developer tooling, plus some known bugs. <a href="details.html#limits">Limits and current work</a>, or <code>TODO.md</code> in the repository.</p>
+  </section>
+</main>
+<footer>
+  <p>Sanjay Kumar Mandal · <a href="https://github.com/sanjay-kr-commit/zforge">GitHub</a> · <a href="https://sanjay-kr-commit.github.io/projects/zforge/">Project</a> · <a href="https://sanjay-kr-commit.github.io/">Portfolio</a></p>
+</footer>
+<script src="site-data.js"></script>
+</body>
+</html>
